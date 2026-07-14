@@ -47,13 +47,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .prev{background:rgba(124,111,247,.12);border:1px solid rgba(124,111,247,.25);border-radius:20px;padding:8px 14px;text-align:center;font-size:14px;font-weight:700;color:var(--ac);margin-bottom:11px;display:none}
 .mat-box{background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);padding:12px 14px;margin-bottom:11px;display:none}
-.mat-title{font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.mat-t{font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 .mat-table{width:100%;border-collapse:collapse}
 .mat-table td{padding:5px 0;font-size:12px;border-bottom:1px solid var(--b)}
 .mat-table td:nth-child(2){text-align:center;color:var(--tx3);font-size:11px}
 .mat-table td:nth-child(3){text-align:right}
 .mat-table tfoot td{font-weight:700;border-bottom:none;border-top:1px solid var(--tx3);padding-top:7px}
-.mat-table tfoot .mg-td{color:var(--su)}
 .btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer;transition:transform .1s;margin-bottom:8px}
 .btn:active{transform:scale(.97)}
 .btn:last-child{margin-bottom:0}
@@ -89,23 +88,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ce.p{color:var(--su)}.ce.w{color:var(--wa)}.ce.g{color:var(--tx3)}
 .sync-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--s2);border-bottom:1px solid var(--b);font-size:11px;color:var(--tx2)}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--tx3);flex-shrink:0}
-.sync-dot.ok{background:var(--su)}.sync-dot.err{background:var(--da)}.sync-dot.loading{background:var(--wa);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sync-dot.ok{background:var(--su)}.sync-dot.err{background:var(--da)}.sync-dot.syn{background:var(--wa);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .toast{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-10px);background:var(--s2);border:1px solid var(--b);color:var(--tx);padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok{border-color:var(--su);color:var(--su)}.toast.err{border-color:var(--da);color:var(--da)}
 .cfg-box{background:var(--s2);border:1px solid var(--wa);border-radius:var(--r);padding:14px;margin-bottom:14px}
 .cfg-title{font-size:12px;font-weight:700;color:var(--wa);margin-bottom:8px}
 .cfg-box input{background:var(--s);border:1px solid var(--b);border-radius:var(--rs);padding:10px 12px;color:var(--tx);font-size:13px;width:100%;margin-bottom:8px}
+.ventas-lista{max-height:400px;overflow-y:auto}
+.venta-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:.5px solid var(--b);font-size:12px}
+.venta-row:last-child{border-bottom:none}
+.venta-info{flex:1}
+.venta-prod{font-weight:600;color:var(--tx)}
+.venta-sub{font-size:10px;color:var(--tx3);margin-top:1px}
+.venta-monto{font-weight:700;color:var(--su);font-size:13px}
 </style>
 </head>
 <body>
 
 <div class="sync-bar" id="sync-bar">
   <div class="sync-dot" id="sync-dot"></div>
-  <span id="sync-txt">Sin configurar — toca Finanzas para agregar URL</span>
+  <span id="sync-txt">Sin configurar</span>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <!-- INICIO -->
@@ -119,14 +124,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="kc ac"><div class="kl">Ventas hoy</div><div class="kv" id="i-hv">$0</div><div class="ks" id="i-htx">0 tx</div></div>
     <div class="kc da"><div class="kl">Egresos hoy</div><div class="kv" id="i-he">$0</div></div>
   </div>
-  <div class="sec">Este mes</div>
+  <div class="sec">Este mes — <span id="mes-nombre" style="color:var(--ac)"></span></div>
   <div class="kg">
-    <div class="kc su"><div class="kl">Ingresos</div><div class="kv" id="i-mi">$0</div><div class="ks" id="i-mtx"></div></div>
+    <div class="kc su"><div class="kl">Ingresos brutos</div><div class="kv" id="i-mi">$0</div><div class="ks" id="i-mtx"></div></div>
     <div class="kc"><div class="kl">Egresos</div><div class="kv" id="i-me">$0</div></div>
-    <div class="kc"><div class="kl">Margen</div><div class="kv" id="i-mg">0%</div></div>
-    <div class="kc wa"><div class="kl">Meta cuota</div><div class="kv" id="i-meta">—</div><div class="ks" id="i-meta-s"></div></div>
   </div>
-  <div class="sec">Ultimas ventas</div>
+  <div class="kg">
+    <div class="kc"><div class="kl">Costo materiales</div><div class="kv" id="i-costo">$0</div><div class="ks" id="i-mg"></div></div>
+    <div class="kc wa"><div class="kl">Meta cuota auto</div><div class="kv" id="i-meta">—</div><div class="ks" id="i-meta-s"></div></div>
+  </div>
+  <div class="sec">Ultimas ventas <button onclick="sw(6)" style="background:none;border:none;color:var(--ac);font-size:10px;cursor:pointer;font-weight:700;margin-left:4px">Ver todas →</button></div>
   <div id="i-ult"></div>
   <div class="cc"><div class="ct">Ventas por dia</div><canvas id="ch-dias"></canvas></div>
 </div>
@@ -148,10 +155,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div class="f"><label>Producto</label>
     <select id="v-prod" onchange="onProdChange()">
       <option value="">— Selecciona —</option>
-      <option>Figura de Yeso</option><option>Caja Grande</option><option>Caja con Flores</option>
-      <option>Figura Personalizada</option><option>Macetero Suculenta</option>
-      <option>Oferta Cyber 1</option><option>Oferta Cyber 2</option>
-      <option>Pulseras</option><option>Delivery</option><option>Otro</option>
+      <option>Figura de Yeso</option>
+      <option>Caja Grande</option>
+      <option>Caja Mediana</option>
+      <option>Figura Personalizada</option>
+      <option>Macetero Suculenta</option>
+      <option>Promo 6x4000</option>
+      <option>Oferta Cyber 1</option>
+      <option>Oferta Cyber 2</option>
+      <option>Pulseras</option>
+      <option>Delivery</option>
+      <option>Otro</option>
     </select>
   </div>
   <div class="r2">
@@ -160,7 +174,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </div>
   <div class="prev" id="v-prev"></div>
   <div class="mat-box" id="mat-box">
-    <div class="mat-title" id="mat-title">Materiales</div>
+    <div class="mat-t" id="mat-title">Materiales</div>
     <table class="mat-table"><tbody id="mat-body"></tbody><tfoot id="mat-foot"></tfoot></table>
   </div>
   <button class="btn btn-ac" onclick="addVenta()">Guardar venta</button>
@@ -214,14 +228,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div id="p-finanzas" class="panel">
   <div class="hdr">Finanzas</div>
   <div class="hdr-s">Control, resultado y sincronizacion</div>
-
   <div class="cfg-box" id="cfg-box">
-    <div class="cfg-title">Configurar sincronizacion con Google Sheets</div>
-    <p style="font-size:11px;color:var(--tx2);margin-bottom:8px">Pega la URL de tu Google Apps Script para sincronizar con Natalia en tiempo real.</p>
+    <div class="cfg-title">Conectar con Google Sheets</div>
+    <p style="font-size:11px;color:var(--tx2);margin-bottom:8px">Pega la URL de tu Apps Script para sincronizar con Natalia.</p>
     <input type="text" id="api-url" placeholder="https://script.google.com/macros/s/...">
     <button class="btn btn-ac" onclick="guardarURL()" style="margin-bottom:0">Guardar y conectar</button>
   </div>
-
   <div class="abar">
     <div style="font-size:13px;font-weight:700;margin-bottom:8px">Suzuki Swift 2016</div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2)"><span>Cuota: $500.000/mes x 6</span><span id="a-pct">0%</span></div>
@@ -229,10 +241,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div style="font-size:11px;color:var(--tx3);margin-bottom:10px" id="a-det"></div>
     <div class="cgrid" id="cuotas-g"></div>
   </div>
-
   <div class="sec">Estado de resultado</div>
   <div class="cc" style="padding:14px"><table class="er" id="er-t"></table></div>
-
   <div class="sec">Proyeccion</div>
   <div class="kg">
     <div class="kc"><div class="kl">Dias del mes</div><div class="kv" id="p-dias">0</div></div>
@@ -240,12 +250,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="kc su"><div class="kl">Proyeccion mes</div><div class="kv" id="p-proy">$0</div></div>
     <div class="kc wa"><div class="kl">Meta minima</div><div class="kv">$235k</div><div class="ks">Fijos + cuota</div></div>
   </div>
-  <div class="cc"><div class="ct">Mix productos — mes actual</div><canvas id="ch-mix"></canvas></div>
-
+  <div class="cc"><div class="ct">Mix productos mes actual</div><canvas id="ch-mix"></canvas></div>
   <div class="sec">Exportar</div>
   <button class="btn btn-su" onclick="exportar()">Descargar Excel del mes</button>
-  <button class="btn btn-gh" onclick="syncManual()">Sincronizar ahora</button>
+  <button class="btn btn-gh" onclick="syncManual()">Sincronizar con Google Sheets</button>
   <button class="btn btn-gh" onclick="limpiar()">Limpiar datos del mes</button>
+</div>
+
+<!-- VENTAS DEL MES -->
+<div id="p-ventas-mes" class="panel">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <button onclick="sw(0)" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:20px">←</button>
+    <div><div class="hdr">Ventas del mes</div><div class="hdr-s" id="vm-sub"></div></div>
+  </div>
+  <div class="f" style="margin-bottom:12px">
+    <input type="search" id="vm-q" placeholder="Buscar producto o cliente..." oninput="filtrarVentas()" autocorrect="off">
+  </div>
+  <div class="cc" style="padding:12px 14px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;font-size:12px">
+      <span style="color:var(--tx2)">Total bruto</span><span id="vm-tot" style="font-weight:700;color:var(--su)">$0</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:6px">
+      <span style="color:var(--tx2)">Costo materiales</span><span id="vm-costo" style="font-weight:600;color:var(--da)">$0</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:6px;padding-top:6px;border-top:.5px solid var(--b)">
+      <span style="color:var(--tx2)">Margen bruto</span><span id="vm-mg" style="font-weight:700;color:var(--ac)">0%</span>
+    </div>
+  </div>
+  <div class="ventas-lista" id="vm-lista"></div>
 </div>
 
 <nav class="nav">
@@ -258,35 +290,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 </nav>
 
 <script>
-// ============================================================
-// DATOS HISTORICOS
-// ============================================================
 var HIST_V=[{"id": 1000, "fecha": "2026-05-01", "cliente": "", "semana": 1, "mes": "Mayo", "producto": "Figuras de Yeso", "cantidad": 1, "precio": 5000, "total": 5000, "pago": "Transferencia"}, {"id": 1001, "fecha": "2026-05-02", "cliente": "Novy", "semana": 1, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1002, "fecha": "2026-05-02", "cliente": "Novy", "semana": 1, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 1, "precio": 3500, "total": 3500, "pago": "Transferencia"}, {"id": 1003, "fecha": "2026-05-02", "cliente": "misscotecita", "semana": 1, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1004, "fecha": "2026-05-02", "cliente": "misscotecita", "semana": 1, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 3, "precio": 3500, "total": 10500, "pago": "Transferencia"}, {"id": 1005, "fecha": "2026-05-02", "cliente": "maajo.gp", "semana": 1, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 1, "precio": 3500, "total": 3500, "pago": "Transferencia"}, {"id": 1006, "fecha": "2026-05-02", "cliente": "maajo.gp", "semana": 1, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1007, "fecha": "2026-05-02", "cliente": "p.farias", "semana": 1, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4000, "total": 8000, "pago": "Transferencia"}, {"id": 1008, "fecha": "2026-05-02", "cliente": "iam.victori", "semana": 1, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1009, "fecha": "2026-05-02", "cliente": "EliLoaiza", "semana": 1, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 4, "precio": 3500, "total": 14000, "pago": "Transferencia"}, {"id": 1010, "fecha": "2026-05-02", "cliente": "", "semana": 1, "mes": "Mayo", "producto": "SIN", "cantidad": 1, "precio": 28000, "total": 28000, "pago": "Transferencia"}, {"id": 1011, "fecha": "2026-05-03", "cliente": "MamaVictoria", "semana": 1, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 13500, "total": 13500, "pago": "Transferencia"}, {"id": 1012, "fecha": "2026-05-04", "cliente": "Nicolc", "semana": 1, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1013, "fecha": "2026-05-04", "cliente": "Yesny", "semana": 1, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1014, "fecha": "2026-05-05", "cliente": "PatriciaCristina", "semana": 1, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 1, "precio": 3500, "total": 3500, "pago": "Transferencia"}, {"id": 1015, "fecha": "2026-05-05", "cliente": "ValeriaBarahona", "semana": 1, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 2, "precio": 3500, "total": 7000, "pago": "Transferencia"}, {"id": 1016, "fecha": "2026-05-05", "cliente": "Novy", "semana": 1, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 1, "precio": 3500, "total": 3500, "pago": "Transferencia"}, {"id": 1017, "fecha": "2026-05-06", "cliente": "", "semana": 1, "mes": "Mayo", "producto": "SIN", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1018, "fecha": "2026-05-07", "cliente": "Estefania", "semana": 1, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 67500, "total": 67500, "pago": "Transferencia"}, {"id": 1019, "fecha": "2026-05-07", "cliente": "", "semana": 1, "mes": "Mayo", "producto": "Macetero Suculentas", "cantidad": 17, "precio": 2500, "total": 42500, "pago": "Transferencia"}, {"id": 1020, "fecha": "2026-05-08", "cliente": "Valeria_08cortes", "semana": 2, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1021, "fecha": "2026-05-08", "cliente": "MacaSubiabre", "semana": 2, "mes": "Mayo", "producto": "Figuras de Yeso", "cantidad": 1, "precio": 19500, "total": 19500, "pago": "Transferencia"}, {"id": 1022, "fecha": "2026-05-08", "cliente": "", "semana": 2, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1023, "fecha": "2026-05-09", "cliente": "Jars", "semana": 2, "mes": "Mayo", "producto": "Macetero  Suculentas", "cantidad": 5, "precio": 2500, "total": 12500, "pago": "Transferencia"}, {"id": 1024, "fecha": "2026-05-09", "cliente": "LealChandia", "semana": 2, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 4, "precio": 3500, "total": 14000, "pago": "Transferencia"}, {"id": 1025, "fecha": "2026-05-09", "cliente": "LealChandia", "semana": 2, "mes": "Mayo", "producto": "Caja con Flores", "cantidad": 1, "precio": 5000, "total": 5000, "pago": "Transferencia"}, {"id": 1026, "fecha": "2026-05-09", "cliente": "Sitacarrillo", "semana": 2, "mes": "Mayo", "producto": "Figuras de Yeso", "cantidad": 1, "precio": 15000, "total": 15000, "pago": "Transferencia"}, {"id": 1027, "fecha": "2026-05-10", "cliente": "Yesny", "semana": 2, "mes": "Mayo", "producto": "Figura Personalizada", "cantidad": 2, "precio": 7500, "total": 15000, "pago": "Transferencia"}, {"id": 1028, "fecha": "2026-05-11", "cliente": "AndreaBelen", "semana": 2, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1029, "fecha": "2026-05-11", "cliente": "AndreaBelen", "semana": 2, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 1000, "total": 1000, "pago": "Transferencia"}, {"id": 1030, "fecha": "2026-05-11", "cliente": "SebaGomez", "semana": 2, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1031, "fecha": "2026-05-11", "cliente": "SebaGomez", "semana": 2, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 2, "precio": 1500, "total": 3000, "pago": "Transferencia"}, {"id": 1032, "fecha": "2026-05-11", "cliente": "Valeria_08cortes", "semana": 2, "mes": "Mayo", "producto": "Macetero Suculenta", "cantidad": 2, "precio": 3000, "total": 6000, "pago": "Transferencia"}, {"id": 1033, "fecha": "2026-05-11", "cliente": "Valeria_08cortes", "semana": 2, "mes": "Mayo", "producto": "Figura Personalizada", "cantidad": 1, "precio": 8000, "total": 8000, "pago": "Transferencia"}, {"id": 1034, "fecha": "2026-05-11", "cliente": "Catalina.huenchunir", "semana": 2, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 1, "precio": 3500, "total": 3500, "pago": "Transferencia"}, {"id": 1035, "fecha": "2026-05-11", "cliente": "Catalina.huenchunir", "semana": 2, "mes": "Mayo", "producto": "Figuras de Yeso", "cantidad": 1, "precio": 2500, "total": 2500, "pago": "Transferencia"}, {"id": 1036, "fecha": "2026-05-11", "cliente": "Catalina.huenchunir", "semana": 2, "mes": "Mayo", "producto": "Pulseras", "cantidad": 2, "precio": 3000, "total": 6000, "pago": "Transferencia"}, {"id": 1037, "fecha": "2026-05-11", "cliente": "Catalina.huenchunir", "semana": 2, "mes": "Mayo", "producto": "Pintura", "cantidad": 1, "precio": 1000, "total": 1000, "pago": "Transferencia"}, {"id": 1038, "fecha": "2026-05-11", "cliente": "EliasGomez", "semana": 2, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1039, "fecha": "2026-05-11", "cliente": "EliasGomez", "semana": 2, "mes": "Mayo", "producto": "Figuras de Yeso", "cantidad": 1, "precio": 3000, "total": 3000, "pago": "Transferencia"}, {"id": 1040, "fecha": "2026-05-11", "cliente": "Vecina", "semana": 2, "mes": "Mayo", "producto": "Figura Personalizada", "cantidad": 1, "precio": 8000, "total": 8000, "pago": "Transferencia"}, {"id": 1041, "fecha": "2026-05-12", "cliente": "rrberto", "semana": 2, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 3500, "total": 3500, "pago": "Transferencia"}, {"id": 1042, "fecha": "2026-05-13", "cliente": "MarcelaCofre", "semana": 2, "mes": "Mayo", "producto": "Figura Personalizada", "cantidad": 1, "precio": 15000, "total": 15000, "pago": "Transferencia"}, {"id": 1043, "fecha": "2026-05-14", "cliente": "Vecina", "semana": 2, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1044, "fecha": "2026-05-16", "cliente": "tiendabemu", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1045, "fecha": "2026-05-16", "cliente": "", "semana": 3, "mes": "Mayo", "producto": "Delivery", "cantidad": 1, "precio": 2000, "total": 2000, "pago": "Transferencia"}, {"id": 1046, "fecha": "2026-05-16", "cliente": "Natali", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 4, "precio": 4500, "total": 18000, "pago": "Transferencia"}, {"id": 1047, "fecha": "2026-05-18", "cliente": "CamilaCastillo", "semana": 3, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 4, "precio": 3500, "total": 14000, "pago": "Transferencia"}, {"id": 1048, "fecha": "2026-05-18", "cliente": "CintiaFlores", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1049, "fecha": "2026-05-19", "cliente": "Jars", "semana": 3, "mes": "Mayo", "producto": "Macetero Suculenta", "cantidad": 4, "precio": 2500, "total": 10000, "pago": "Transferencia"}, {"id": 1050, "fecha": "2026-05-20", "cliente": "Janina.micaelav", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1051, "fecha": "2026-05-20", "cliente": "Janina.micaelav", "semana": 3, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 1500, "total": 1500, "pago": "Transferencia"}, {"id": 1052, "fecha": "2026-05-20", "cliente": "Ma\u00f1ihuales", "semana": 3, "mes": "Mayo", "producto": "Figura Personalizada", "cantidad": 1, "precio": 8000, "total": 8000, "pago": "Transferencia"}, {"id": 1053, "fecha": "2026-05-20", "cliente": "Ma\u00f1ihuales", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1054, "fecha": "2026-05-20", "cliente": "ConyDangl", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1055, "fecha": "2026-05-20", "cliente": "ConyDangl", "semana": 3, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 3000, "total": 3000, "pago": "Transferencia"}, {"id": 1056, "fecha": "2026-05-21", "cliente": "Nicolc", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1057, "fecha": "2026-05-21", "cliente": "Jair", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 4, "precio": 4500, "total": 18000, "pago": "Transferencia"}, {"id": 1058, "fecha": "2026-05-21", "cliente": "Jair", "semana": 3, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 12000, "total": 12000, "pago": "Transferencia"}, {"id": 1059, "fecha": "2026-05-22", "cliente": "AlisonAriel", "semana": 3, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1060, "fecha": "2026-05-22", "cliente": "AlisonAriel", "semana": 3, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 8500, "total": 8500, "pago": "Transferencia"}, {"id": 1061, "fecha": "2026-05-23", "cliente": "DaniFarias", "semana": 4, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1062, "fecha": "2026-05-23", "cliente": "Jocelyn.Alvarado", "semana": 4, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1063, "fecha": "2026-05-23", "cliente": "Jocelyn.Alvarado", "semana": 4, "mes": "Mayo", "producto": "Caja Peque\u00f1a", "cantidad": 2, "precio": 3500, "total": 7000, "pago": "Transferencia"}, {"id": 1064, "fecha": "2026-05-23", "cliente": "CatalinaMejias", "semana": 4, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1065, "fecha": "2026-05-24", "cliente": "Coyhaique", "semana": 4, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1066, "fecha": "2026-05-25", "cliente": "Joselin", "semana": 4, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 7500, "total": 7500, "pago": "Transferencia"}, {"id": 1067, "fecha": "2026-05-27", "cliente": "JasminBerrios", "semana": 4, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 6000, "total": 6000, "pago": "Transferencia"}, {"id": 1068, "fecha": "2026-05-29", "cliente": "Estefania", "semana": 4, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 7000, "total": 7000, "pago": "Transferencia"}, {"id": 1069, "fecha": "2026-05-29", "cliente": "NatalyBarragan", "semana": 4, "mes": "Mayo", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1070, "fecha": "2026-05-31", "cliente": "MacaSubiabre", "semana": 4, "mes": "Mayo", "producto": "Figura de Yeso", "cantidad": 1, "precio": 19500, "total": 19500, "pago": "Transferencia"}, {"id": 1071, "fecha": "2026-06-01", "cliente": "Francesita", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 2, "precio": 10000, "total": 20000, "pago": "Transferencia"}, {"id": 1072, "fecha": "2026-06-01", "cliente": "Francesita", "semana": 1, "mes": "Junio", "producto": "Delivery", "cantidad": 1, "precio": 2500, "total": 2500, "pago": "Transferencia"}, {"id": 1073, "fecha": "2026-06-01", "cliente": "Camila.belencita", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1074, "fecha": "2026-06-02", "cliente": "chinojau", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1075, "fecha": "2026-06-02", "cliente": "chinojau", "semana": 1, "mes": "Junio", "producto": "Pinceles", "cantidad": 1, "precio": 2000, "total": 2000, "pago": "Transferencia"}, {"id": 1076, "fecha": "2026-06-02", "cliente": "JocelynRogel", "semana": 1, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1077, "fecha": "2026-06-03", "cliente": "Wale", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1078, "fecha": "2026-06-03", "cliente": "Wale", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 2", "cantidad": 1, "precio": 6000, "total": 6000, "pago": "Transferencia"}, {"id": 1079, "fecha": "2026-06-03", "cliente": "PaulinaPega", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1080, "fecha": "2026-06-03", "cliente": "PaulinaPega", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 2", "cantidad": 1, "precio": 5000, "total": 5000, "pago": "Transferencia"}, {"id": 1081, "fecha": "2026-06-03", "cliente": "OrianaBalboa", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 11000, "total": 11000, "pago": "Transferencia"}, {"id": 1082, "fecha": "2026-06-04", "cliente": "YoselinVelazquez", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1083, "fecha": "2026-06-05", "cliente": "Melpaz", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1084, "fecha": "2026-06-05", "cliente": "PaulinaPega", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1085, "fecha": "2026-06-06", "cliente": "DaniFarias", "semana": 1, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 12500, "total": 12500, "pago": "Transferencia"}, {"id": 1086, "fecha": "2026-06-06", "cliente": "FranciaParedes", "semana": 1, "mes": "Junio", "producto": "Oferta Cyber 1", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1087, "fecha": "2026-06-10", "cliente": "Valebarahona", "semana": 2, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 14000, "total": 14000, "pago": "Transferencia"}, {"id": 1088, "fecha": "2026-06-10", "cliente": "macarenaperez", "semana": 2, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1089, "fecha": "2026-06-10", "cliente": "macarenaperez", "semana": 2, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 13000, "total": 13000, "pago": "Transferencia"}, {"id": 1090, "fecha": "2026-06-11", "cliente": "PalomaRodriguez", "semana": 2, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1091, "fecha": "2026-06-11", "cliente": "MauraFoitzick", "semana": 2, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 1500, "total": 1500, "pago": "Transferencia"}, {"id": 1092, "fecha": "2026-06-12", "cliente": "vale.vera", "semana": 2, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 14000, "total": 14000, "pago": "Transferencia"}, {"id": 1093, "fecha": "2026-06-12", "cliente": "DiegoVargas", "semana": 2, "mes": "Junio", "producto": "Figura Personalizada", "cantidad": 2, "precio": 8000, "total": 16000, "pago": "Transferencia"}, {"id": 1094, "fecha": "2026-06-13", "cliente": "Jorgito", "semana": 2, "mes": "Junio", "producto": "Figura Personalizada", "cantidad": 2, "precio": 8000, "total": 16000, "pago": "Transferencia"}, {"id": 1095, "fecha": "2026-06-13", "cliente": "KarlaPaola", "semana": 2, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1096, "fecha": "2026-06-13", "cliente": "macarenaperez", "semana": 2, "mes": "Junio", "producto": "Macetero Suculenta", "cantidad": 1, "precio": 3000, "total": 3000, "pago": "Transferencia"}, {"id": 1097, "fecha": "2026-06-13", "cliente": "JavieraContreras", "semana": 2, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 6000, "total": 6000, "pago": "Transferencia"}, {"id": 1098, "fecha": "2026-06-14", "cliente": "DiegoVargas", "semana": 2, "mes": "Junio", "producto": "Figura Personalizada", "cantidad": 1, "precio": 8000, "total": 8000, "pago": "Transferencia"}, {"id": 1099, "fecha": "2026-06-15", "cliente": "KrisBascu\u00f1an", "semana": 3, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 7000, "total": 7000, "pago": "Transferencia"}, {"id": 1100, "fecha": "2026-06-15", "cliente": "Low", "semana": 3, "mes": "Junio", "producto": "Caja Peque\u00f1a", "cantidad": 3, "precio": 3500, "total": 10500, "pago": "Transferencia"}, {"id": 1101, "fecha": "2026-06-16", "cliente": "LuisRubilar", "semana": 3, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1102, "fecha": "2026-06-16", "cliente": "LuisRubilar", "semana": 3, "mes": "Junio", "producto": "Macetero Suculenta", "cantidad": 1, "precio": 3000, "total": 3000, "pago": "Transferencia"}, {"id": 1103, "fecha": "2026-06-17", "cliente": "Carvajal.Bustamante", "semana": 3, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1104, "fecha": "2026-06-18", "cliente": "JasminBerrios", "semana": 3, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 11, "precio": 1000, "total": 11000, "pago": "Transferencia"}, {"id": 1105, "fecha": "2026-06-18", "cliente": "Javiera_Carcamo", "semana": 3, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1106, "fecha": "2026-06-18", "cliente": "Javiera_Carcamo", "semana": 3, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 16500, "total": 16500, "pago": "Transferencia"}, {"id": 1107, "fecha": "2026-06-18", "cliente": "PoletSanhuesa", "semana": 3, "mes": "Junio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1108, "fecha": "2026-06-20", "cliente": "EvelinUlloa", "semana": 3, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 6000, "total": 6000, "pago": "Transferencia"}, {"id": 1109, "fecha": "2026-06-20", "cliente": "Facebook", "semana": 3, "mes": "Junio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1110, "fecha": "2026-06-20", "cliente": "Carvajal.Bustamante", "semana": 3, "mes": "Junio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1111, "fecha": "2026-06-20", "cliente": "Carvajal.Bustamante", "semana": 3, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 3500, "total": 3500, "pago": "Transferencia"}, {"id": 1112, "fecha": "2026-06-22", "cliente": "PaulaParedes", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1113, "fecha": "2026-06-22", "cliente": "PaulaParedes", "semana": 4, "mes": "Junio", "producto": "Promo 6x4000", "cantidad": 1, "precio": 4000, "total": 4000, "pago": "Transferencia"}, {"id": 1114, "fecha": "2026-06-23", "cliente": "Baabi.", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1115, "fecha": "2026-06-23", "cliente": "CamiRamirez", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1116, "fecha": "2026-06-23", "cliente": "YerkoCatelican", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1117, "fecha": "2026-06-23", "cliente": "YerkoCatelican", "semana": 4, "mes": "Junio", "producto": "LentesHarry", "cantidad": 1, "precio": 500, "total": 500, "pago": "Transferencia"}, {"id": 1118, "fecha": "2026-06-23", "cliente": "VictoriaVega", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1119, "fecha": "2026-06-23", "cliente": "ClaudiaSoto", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 4, "precio": 4500, "total": 18000, "pago": "Transferencia"}, {"id": 1120, "fecha": "2026-06-23", "cliente": "ClaudiaSoto", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 5500, "total": 5500, "pago": "Transferencia"}, {"id": 1121, "fecha": "2026-06-24", "cliente": "Anita", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 5000, "total": 5000, "pago": "Transferencia"}, {"id": 1122, "fecha": "2026-06-25", "cliente": "Johanita", "semana": 4, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 10000, "total": 10000, "pago": "Transferencia"}, {"id": 1123, "fecha": "2026-06-25", "cliente": "Macarena", "semana": 4, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 4000, "total": 4000, "pago": "Transferencia"}, {"id": 1124, "fecha": "2026-06-25", "cliente": "Suellen", "semana": 4, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 13500, "total": 13500, "pago": "Transferencia"}, {"id": 1125, "fecha": "2026-06-25", "cliente": "Natanael", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1126, "fecha": "2026-06-25", "cliente": "Natanael", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 5000, "total": 5000, "pago": "Transferencia"}, {"id": 1127, "fecha": "2026-06-25", "cliente": "macarenaperez", "semana": 4, "mes": "Junio", "producto": "Macetero Suculenta", "cantidad": 1, "precio": 3000, "total": 3000, "pago": "Transferencia"}, {"id": 1128, "fecha": "2026-06-25", "cliente": "macarenaperez", "semana": 4, "mes": "Junio", "producto": "Delivery", "cantidad": 1, "precio": 2000, "total": 2000, "pago": "Transferencia"}, {"id": 1129, "fecha": "2026-06-26", "cliente": "X", "semana": 4, "mes": "Junio", "producto": "Figura Personalizada", "cantidad": 1, "precio": 8000, "total": 8000, "pago": "Transferencia"}, {"id": 1130, "fecha": "2026-06-26", "cliente": "marti", "semana": 4, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 17000, "total": 17000, "pago": "Transferencia"}, {"id": 1131, "fecha": "2026-06-27", "cliente": "MacaMora", "semana": 4, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 9000, "total": 9000, "pago": "Transferencia"}, {"id": 1132, "fecha": "2026-06-27", "cliente": "Carita", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 5000, "total": 5000, "pago": "Transferencia"}, {"id": 1133, "fecha": "2026-06-27", "cliente": "MamaElba", "semana": 4, "mes": "Junio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 6000, "total": 6000, "pago": "Transferencia"}, {"id": 1134, "fecha": "2026-06-28", "cliente": "ColegaMama", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1135, "fecha": "2026-06-28", "cliente": "ColegaMama", "semana": 4, "mes": "Junio", "producto": "Caja Grande", "cantidad": 1, "precio": 5500, "total": 5500, "pago": "Transferencia"}, {"id": 1136, "fecha": "2026-06-28", "cliente": "Milla", "semana": 4, "mes": "Junio", "producto": "Tejido (50%)", "cantidad": 1, "precio": 15000, "total": 15000, "pago": "Transferencia"}];
-var JULIO_V=[{"id": 1137, "fecha": "2026-07-02", "cliente": "pauliromeroq", "semana": 1, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 6000, "total": 6000, "pago": "Transferencia"}, {"id": 1138, "fecha": "2026-07-03", "cliente": "X", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1139, "fecha": "2026-07-04", "cliente": "Coyhaique", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1140, "fecha": "2026-07-05", "cliente": "l4uumv_", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 1141, "fecha": "2026-07-05", "cliente": "sitacarrillo", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 1142, "fecha": "2026-07-05", "cliente": "Mitosdelsur", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 4, "precio": 4500, "total": 18000, "pago": "Transferencia"}, {"id": 1143, "fecha": "2026-07-05", "cliente": "Mitosdelsur", "semana": 1, "mes": "Julio", "producto": "Delivery", "cantidad": 1, "precio": 2000, "total": 2000, "pago": "Transferencia"}, {"id": 1144, "fecha": "2026-07-07", "cliente": "kattyvalentina", "semana": 1, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 20000, "total": 20000, "pago": "Transferencia"}, {"id": 1145, "fecha": "2026-07-08", "cliente": "ElizabethPino", "semana": 2, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 9000, "total": 9000, "pago": "Transferencia"}, {"id": 1146, "fecha": "2026-07-09", "cliente": "Johana", "semana": 2, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 8000, "total": 8000, "pago": "Transferencia"}, {"id": 1147, "fecha": "2026-07-09", "cliente": "Milenka", "semana": 2, "mes": "Julio", "producto": "Caja Grande", "cantidad": 8, "precio": 4500, "total": 36000, "pago": "Transferencia"}];
+var JULIO_V=[{"id": 3001, "fecha": "2026-07-02", "cliente": "pauliromeroq", "semana": 1, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 6000, "total": 6000, "pago": "Transferencia"}, {"id": 3002, "fecha": "2026-07-03", "cliente": "X", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 3003, "fecha": "2026-07-04", "cliente": "Coyhaique", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 3004, "fecha": "2026-07-04", "cliente": "Domo", "semana": 1, "mes": "Julio", "producto": "Promo 6x4000", "cantidad": 1, "precio": 4000, "total": 4000, "pago": "Transferencia"}, {"id": 3005, "fecha": "2026-07-04", "cliente": "Domo", "semana": 1, "mes": "Julio", "producto": "Pinceles", "cantidad": 2, "precio": 500, "total": 1000, "pago": "Transferencia"}, {"id": 3006, "fecha": "2026-07-05", "cliente": "l4uumv_", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 1, "precio": 4500, "total": 4500, "pago": "Transferencia"}, {"id": 3007, "fecha": "2026-07-05", "cliente": "sitacarrillo", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 2, "precio": 4500, "total": 9000, "pago": "Transferencia"}, {"id": 3008, "fecha": "2026-07-05", "cliente": "Mitosdelsur", "semana": 1, "mes": "Julio", "producto": "Caja Grande", "cantidad": 4, "precio": 4500, "total": 18000, "pago": "Transferencia"}, {"id": 3009, "fecha": "2026-07-05", "cliente": "Mitosdelsur", "semana": 1, "mes": "Julio", "producto": "Delivery", "cantidad": 1, "precio": 2000, "total": 2000, "pago": "Transferencia"}, {"id": 3010, "fecha": "2026-07-07", "cliente": "kattyvalentina", "semana": 1, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 20000, "total": 20000, "pago": "Transferencia"}, {"id": 3011, "fecha": "2026-07-08", "cliente": "ElizabethPino", "semana": 2, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 9000, "total": 9000, "pago": "Transferencia"}, {"id": 3012, "fecha": "2026-07-09", "cliente": "Johana", "semana": 2, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 1, "precio": 8000, "total": 8000, "pago": "Transferencia"}, {"id": 3013, "fecha": "2026-07-09", "cliente": "Milenka", "semana": 2, "mes": "Julio", "producto": "Caja Grande", "cantidad": 8, "precio": 4500, "total": 36000, "pago": "Transferencia"}, {"id": 3014, "fecha": "2026-07-09", "cliente": "Compa\u00f1ero", "semana": 2, "mes": "Julio", "producto": "Figura Personalizada", "cantidad": 2, "precio": 8000, "total": 16000, "pago": "Transferencia"}, {"id": 3015, "fecha": "2026-07-10", "cliente": "mu\u00f1ozbelen9", "semana": 2, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 2, "precio": 1500, "total": 3000, "pago": "Transferencia"}, {"id": 3016, "fecha": "2026-07-10", "cliente": "mu\u00f1ozbelen9", "semana": 2, "mes": "Julio", "producto": "Promo 6x4000", "cantidad": 1, "precio": 4000, "total": 4000, "pago": "Transferencia"}, {"id": 3017, "fecha": "2026-07-10", "cliente": "vikarem", "semana": 2, "mes": "Julio", "producto": "Figura de Yeso", "cantidad": 5, "precio": 1500, "total": 7500, "pago": "Transferencia"}, {"id": 3018, "fecha": "2026-07-10", "cliente": "Karolaynvegab", "semana": 2, "mes": "Julio", "producto": "Caja Grande", "cantidad": 1, "precio": 5500, "total": 5500, "pago": "Transferencia"}];
 var HIST_E=[{"id": 2000, "fecha": "2026-05-01", "mes": "Mayo", "descripcion": "Alcohol isopropilico", "cantidad": 1, "monto": 4038, "total": 4038, "tipo": "Materia Prima"}, {"id": 2001, "fecha": "2026-05-01", "mes": "Mayo", "descripcion": "2 sacos de yeso", "cantidad": 2, "monto": 7000, "total": 14000, "tipo": "Materia Prima"}, {"id": 2002, "fecha": "2026-05-01", "mes": "Mayo", "descripcion": "Moldes extra mama", "cantidad": 1, "monto": 30000, "total": 30000, "tipo": "Inversion"}, {"id": 2003, "fecha": "2026-06-01", "mes": "Junio", "descripcion": "Estante exhibicion", "cantidad": 1, "monto": 24990, "total": 24990, "tipo": "Inversion"}, {"id": 2004, "fecha": "2026-06-01", "mes": "Junio", "descripcion": "2 sacos de yeso", "cantidad": 2, "monto": 7000, "total": 14000, "tipo": "Materia Prima"}, {"id": 2005, "fecha": "2026-06-01", "mes": "Junio", "descripcion": "Papel crepe", "cantidad": 1, "monto": 1750, "total": 1750, "tipo": "Materia Prima"}, {"id": 2006, "fecha": "2026-06-01", "mes": "Junio", "descripcion": "Moldes nuevos", "cantidad": 1, "monto": 15914, "total": 15914, "tipo": "Inversion"}];
 
-// ============================================================
-// COSTOS Y MATERIALES
-// ============================================================
-var PRECIOS={'Caja Grande':4500,'Caja con Flores':5000,'Figura Personalizada':8000,'Macetero Suculenta':2500,'Oferta Cyber 1':10000,'Oferta Cyber 2':5000,'Pulseras':3000,'Delivery':2500,'Figura de Yeso':0,'Otro':0};
-var COSTOS={'Caja Grande':1055,'Caja con Flores':1555,'Figura de Yeso':150,'Figuras de Yeso':150,'Figura Personalizada':1950,'Macetero Suculenta':150,'Macetero Suculentas':150,'Oferta Cyber 1':1055,'Oferta Cyber 2':970,'Pulseras':150,'Delivery':0,'Otro':0};
+var PRECIOS={'Figura de Yeso':0,'Caja Grande':5500,'Caja Mediana':4500,'Figura Personalizada':8500,'Macetero Suculenta':3500,'Promo 6x4000':4000,'Oferta Cyber 1':10000,'Oferta Cyber 2':5000,'Pulseras':3000,'Delivery':2000,'Otro':0};
+var COSTOS={'Figura de Yeso':150,'Figuras de Yeso':150,'Caja Grande':1055,'Caja Mediana':730,'Caja Pequeña':730,'Figura Personalizada':1950,'Macetero Suculenta':150,'Macetero Suculentas':150,'Promo 6x4000':450,'Oferta Cyber 1':1055,'Oferta Cyber 2':970,'Pulseras':150,'Delivery':0,'Otro':0,'Pinceles':80};
 var MATS={
-  'Caja Grande':[{m:'Yeso 3 figuras (agua+moldes+merma incl.)',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
-  'Caja con Flores':[{m:'Yeso 3 figuras (agua+moldes+merma incl.)',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel crepe',u:'unid',cu:1,cp:45},{m:'Flores pequenas',u:'unid',cu:5,cp:100}],
-  'Figura de Yeso':[{m:'Yeso figura (agua+moldes+merma incl.)',u:'unid',cu:1,cp:150}],
-  'Figura Personalizada':[{m:'Yeso figura (agua+moldes+merma incl.)',u:'unid',cu:1,cp:150},{m:'Pintura tematica',u:'set',cu:1,cp:150},{m:'Suculenta (patio)',u:'unid',cu:1,cp:0},{m:'Mano de obra Natalia',u:'unid',cu:1,cp:1650}],
-  'Macetero Suculenta':[{m:'Yeso figura (agua+moldes+merma incl.)',u:'unid',cu:1,cp:150},{m:'Suculenta (patio)',u:'unid',cu:1,cp:0}],
-  'Pulseras':[{m:'Pelotitas + hilo',u:'set',cu:1,cp:150}],
-  'Oferta Cyber 1':[{m:'Yeso 3 figuras (agua+moldes+merma incl.)',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
-  'Oferta Cyber 2':[{m:'Yeso 5 figuras planas (agua+moldes+merma incl.)',u:'unid',cu:5,cp:75},{m:'Pintura 3 colores',u:'set',cu:1,cp:90},{m:'Potecitos',u:'unid',cu:3,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}]
+  'Caja Grande':[{m:'Yeso 3 figuras 3D',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
+  'Caja Mediana':[{m:'Yeso (5 planas o 2x3D)',u:'set',cu:1,cp:375},{m:'Pintura 3 colores',u:'set',cu:1,cp:90},{m:'Potecitos',u:'unid',cu:3,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200}],
+  'Figura de Yeso':[{m:'Yeso figura (agua+moldes+merma)',u:'unid',cu:1,cp:150}],
+  'Figura Personalizada':[{m:'Yeso figura 3D',u:'unid',cu:1,cp:150},{m:'Pintura tematica',u:'set',cu:1,cp:150},{m:'Suculenta patio',u:'unid',cu:1,cp:0},{m:'Mano de obra Natalia',u:'unid',cu:1,cp:1650}],
+  'Macetero Suculenta':[{m:'Yeso figura 3D',u:'unid',cu:1,cp:150},{m:'Suculenta patio',u:'unid',cu:1,cp:0}],
+  'Promo 6x4000':[{m:'Yeso 6 figuras planas',u:'unid',cu:6,cp:75}],
+  'Oferta Cyber 1':[{m:'Yeso 3 figuras 3D',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
+  'Oferta Cyber 2':[{m:'Yeso 5 figuras planas',u:'unid',cu:5,cp:75},{m:'Pintura 3 colores',u:'set',cu:1,cp:90},{m:'Potecitos',u:'unid',cu:3,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
+  'Pulseras':[{m:'Pelotitas + hilo',u:'set',cu:1,cp:150}]
 };
 
-// ============================================================
-// CONFIG / STORAGE
-// ============================================================
 var CUOTA=500000,APORTE=200000,FIJOS=35000,META=235000;
 var API_URL=localStorage.getItem('co_api')||'';
 var charts={},curTab=0;
+var todasVentasMes=[];
 
 function gV(){try{return JSON.parse(localStorage.getItem('co_v')||'[]');}catch(e){return[];}}
 function gE(){try{return JSON.parse(localStorage.getItem('co_e')||'[]');}catch(e){return[];}}
@@ -302,103 +327,89 @@ function allMesV(){
 }
 function allHistV(){return HIST_V.concat(JULIO_V).concat(gV());}
 
-// ============================================================
-// UTILS
-// ============================================================
 function fmt(n){return'$'+Math.round(n).toLocaleString('es-CL');}
 function fmtK(n){return n>=1000?'$'+(n/1000).toFixed(0)+'k':fmt(n);}
 function hoy(){return new Date().toISOString().split('T')[0];}
 function mesNow(){var m=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];return m[new Date().getMonth()];}
 function semNow(){var d=new Date().getDate();return d<=7?'1':d<=14?'2':d<=21?'3':'4';}
 function isHoy(f){return String(f).slice(0,10)===hoy();}
+function isMes(f){var d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),s=String(f);return s.indexOf(y+'-'+m)===0||s.indexOf(m+'-'+y)===0;}
 function se(id,h){var el=document.getElementById(id);if(el)el.innerHTML=h;}
 function tagCls(p){return p==='Transferencia'?'t-tr':p==='Efectivo'?'t-ef':'t-pe';}
+function sum(arr){return arr.reduce(function(a,v){return a+v.total;},0);}
+function sumE(arr){return arr.reduce(function(a,e){return a+e.total;},0);}
+function costo(v){return v.cantidad*(COSTOS[v.producto]||0);}
 
-// ============================================================
-// NAV
-// ============================================================
 function sw(i){
   curTab=i;
-  ['inicio','venta','egreso','historial','clientes','finanzas'].forEach(function(t,j){
+  var tabs=['inicio','venta','egreso','historial','clientes','finanzas','ventas-mes'];
+  tabs.forEach(function(t,j){
     var p=document.getElementById('p-'+t),n=document.getElementById('ni'+j);
     if(p)p.classList.toggle('active',j===i);
     if(n)n.classList.toggle('active',j===i);
   });
   if(i===3)renderHist();
   if(i===4)renderCli('');
+  if(i===6)renderVentasMes('');
   render();
 }
 
-// ============================================================
-// SYNC STATUS
-// ============================================================
-function setSyncStatus(estado,txt){
+function setSyncStatus(cls,txt){
   var dot=document.getElementById('sync-dot'),stxt=document.getElementById('sync-txt');
-  if(dot)dot.className='sync-dot '+(estado||'');
+  if(dot)dot.className='sync-dot '+(cls||'');
   if(stxt)stxt.textContent=txt||'';
 }
 
 function guardarURL(){
   var url=(document.getElementById('api-url').value||'').trim();
   if(!url){toast('Pega la URL primero','err');return;}
-  API_URL=url;
-  localStorage.setItem('co_api',url);
-  var box=document.getElementById('cfg-box');
-  if(box)box.style.display='none';
-  toast('URL guardada — sincronizando...','ok');
-  syncManual();
+  API_URL=url;localStorage.setItem('co_api',url);
+  var box=document.getElementById('cfg-box');if(box)box.style.display='none';
+  toast('URL guardada','ok');syncManual();
 }
 
 async function syncManual(){
   if(!API_URL){toast('Configura la URL en Finanzas','err');return;}
-  setSyncStatus('loading','Sincronizando...');
+  setSyncStatus('syn','Sincronizando...');
   try{
     var r=await fetch(API_URL+'?action=ventas&mes='+mesNow());
     var d=await r.json();
-    if(d.ok && d.data && d.data.length){
-      // Merge ventas del servidor con las locales
+    if(d.ok&&d.data&&d.data.length){
       var locales=gV();
-      var localIds=locales.map(function(v){return String(v.fecha)+'_'+v.cliente+'_'+v.producto;});
+      var localKeys=locales.map(function(v){return String(v.fecha).slice(0,10)+'_'+(v.cliente||'')+'_'+v.producto+'_'+v.total;});
       var nuevas=d.data.filter(function(v){
-        var key=String(v.Fecha||v.fecha)+'_'+(v.Cliente||v.cliente)+'_'+(v.Producto||v.producto);
-        return localIds.indexOf(key)===-1;
+        var prod=v.Producto||v.producto;
+        var tot=parseFloat(v.Total||v.total||0);
+        if(!prod||!tot)return false;
+        var key=String(v.Fecha||v.fecha).slice(0,10)+'_'+(v.Cliente||v.cliente||'')+'_'+prod+'_'+tot;
+        return localKeys.indexOf(key)===-1;
       });
       if(nuevas.length){
         nuevas.forEach(function(v){
-          locales.push({id:Date.now()+Math.random(),fecha:v.Fecha||v.fecha,cliente:v.Cliente||v.cliente,semana:v.Semana||v.semana,mes:v.Mes||v.mes,producto:v.Producto||v.producto,cantidad:parseFloat(v.Cantidad||v.cantidad)||1,precio:parseFloat(v['Precio Unitario']||v.precio)||0,total:parseFloat(v.Total||v.total)||0,pago:v['Metodo Pago']||v.pago||'Transferencia'});
+          var tot=parseFloat(v.Total||v.total||0);
+          if(!tot)return;
+          locales.push({id:Date.now()+Math.random(),fecha:String(v.Fecha||v.fecha).slice(0,10),cliente:v.Cliente||v.cliente||'',semana:v.Semana||v.semana||1,mes:v.Mes||v.mes||mesNow(),producto:v.Producto||v.producto,cantidad:parseFloat(v.Cantidad||v.cantidad)||1,precio:parseFloat(v['Precio Unitario']||v.precio)||0,total:tot,pago:v['Metodo Pago']||v.pago||'Transferencia'});
         });
         sV(locales);
+        toast(nuevas.length+' ventas nuevas sincronizadas','ok');
+      } else {
+        toast('Todo actualizado','ok');
       }
     }
-    setSyncStatus('ok','Sincronizado — '+new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}));
-    toast('Sincronizado','ok');
+    setSyncStatus('ok','Sincronizado '+new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}));
     render();
   }catch(err){
-    setSyncStatus('err','Sin conexion — datos guardados localmente');
+    setSyncStatus('err','Sin conexion — guardado local');
   }
 }
 
-async function enviarVenta(v){
-  if(!API_URL)return;
-  try{
-    await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'addVenta',...v})});
-  }catch(e){}
-}
+async function enviarV(v){if(!API_URL)return;try{await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'addVenta',...v})});}catch(e){}}
+async function enviarE(e){if(!API_URL)return;try{await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'addEgreso',...e})});}catch(e){}}
 
-async function enviarEgreso(e){
-  if(!API_URL)return;
-  try{
-    await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'addEgreso',...e})});
-  }catch(e){}
-}
-
-// ============================================================
-// DESGLOSE MATERIALES
-// ============================================================
 function onProdChange(){
   var p=PRECIOS[document.getElementById('v-prod').value];
   var el=document.getElementById('v-precio');
-  if(p&&p>0&&el)el.value=p; else if(el)el.value='';
+  if(p&&p>0&&el)el.value=p;else if(el)el.value='';
   updateDesglose();
 }
 function onCantChange(){updateDesglose();}
@@ -410,29 +421,20 @@ function updateDesglose(){
   var precio=parseInt(document.getElementById('v-precio').value)||0;
   var box=document.getElementById('mat-box');
   var prev=document.getElementById('v-prev');
-  
   if(precio>0&&cant>0&&prev){prev.style.display='block';prev.textContent='Total: '+fmt(cant*precio);}
   else if(prev){prev.style.display='none';}
-
   var mats=MATS[prod];
   if(!mats||!mats.length){if(box)box.style.display='none';return;}
-  
   var costoUnit=mats.reduce(function(a,m){return a+m.cu*m.cp;},0);
   var costoTotal=costoUnit*cant;
   var ventaTotal=precio*cant;
   var margen=ventaTotal>0?Math.round((ventaTotal-costoTotal)/ventaTotal*100):0;
-
   se('mat-title','Materiales para '+cant+' unidad'+(cant>1?'es':''));
-  se('mat-body',mats.map(function(m){
-    return '<tr><td style="color:var(--tx2)">'+m.m+'</td><td>'+m.cu*cant+' '+m.u+'</td><td>'+(m.cp>0?fmt(m.cp*m.cu*cant):'$0')+'</td></tr>';
-  }).join(''));
-  se('mat-foot','<tr><td colspan="2" style="font-weight:700;padding-top:7px;border-top:1px solid var(--tx3)">Costo total</td><td style="font-weight:700;padding-top:7px;border-top:1px solid var(--tx3);color:var(--da)">'+fmt(costoTotal)+'</td></tr>'+(ventaTotal>0?'<tr class="mg-td"><td colspan="2" style="font-weight:700;color:var(--su)">Margen ('+margen+'%)</td><td style="font-weight:700;color:var(--su)">'+fmt(ventaTotal-costoTotal)+'</td></tr>':''));
+  se('mat-body',mats.map(function(m){return'<tr><td style="color:var(--tx2)">'+m.m+'</td><td>'+m.cu*cant+' '+m.u+'</td><td>'+(m.cp>0?fmt(m.cp*m.cu*cant):'$0')+'</td></tr>';}).join(''));
+  se('mat-foot','<tr><td colspan="2" style="font-weight:700;padding-top:7px;border-top:1px solid var(--tx3)">Costo total</td><td style="font-weight:700;padding-top:7px;border-top:1px solid var(--tx3);color:var(--da)">'+fmt(costoTotal)+'</td></tr>'+(ventaTotal>0?'<tr><td colspan="2" style="font-weight:700;color:var(--su)">Margen ('+margen+'%)</td><td style="font-weight:700;color:var(--su)">'+fmt(ventaTotal-costoTotal)+'</td></tr>':''));
   if(box)box.style.display='block';
 }
 
-// ============================================================
-// FORMULARIOS
-// ============================================================
 function addVenta(){
   var fecha=document.getElementById('v-fecha').value;
   var cli=(document.getElementById('v-cli').value||'').trim();
@@ -450,8 +452,8 @@ function addVenta(){
   document.getElementById('v-prod').value='';
   document.getElementById('v-prev').style.display='none';
   document.getElementById('mat-box').style.display='none';
-  enviarVenta(v);
-  toast('Guardada y enviada a Sheets','ok');
+  enviarV(v);
+  toast('Venta guardada','ok');
   render();
 }
 
@@ -467,7 +469,7 @@ function addEgreso(){
   document.getElementById('e-desc').value='';
   document.getElementById('e-cant').value=1;
   document.getElementById('e-monto').value='';
-  enviarEgreso(e);
+  enviarE(e);
   toast('Egreso guardado','ok');
   render();
 }
@@ -475,67 +477,67 @@ function addEgreso(){
 function delVenta(id){sV(gV().filter(function(v){return v.id!==id;}));render();}
 function delEgreso(id){sE(gE().filter(function(e){return e.id!==id;}));render();}
 
-// ============================================================
-// RENDER
-// ============================================================
 function render(){
   var mesV=allMesV(),mesE=gE().filter(function(e){return isMes(e.fecha);});
   var hoyV=mesV.filter(function(v){return isHoy(v.fecha);});
   var hoyE=mesE.filter(function(e){return isHoy(e.fecha);});
   var ingH=sum(hoyV),egH=sumE(hoyE),ingM=sum(mesV),egM=sumE(mesE);
-  var costoM=mesV.reduce(function(a,v){return a+v.cantidad*(COSTOS[v.producto]||0);},0);
+  var costoM=mesV.reduce(function(a,v){return a+costo(v);},0);
   var ub=ingM-costoM,mg=ingM>0?Math.round(ub/ingM*100):0;
+  todasVentasMes=mesV;
 
   var bc=document.getElementById('bal-chip');
   if(bc){bc.textContent=fmtK(ingH-egH);bc.style.color=ingH-egH>=0?'var(--su)':'var(--da)';}
 
+  se('mes-nombre',mesNow());
   se('i-hv',fmtK(ingH));se('i-htx',hoyV.length+' transacciones');se('i-he',fmtK(egH));
-  se('i-mi',fmtK(ingM));se('i-mtx',mesV.length+' ventas | '+mesNow());
-  se('i-me',fmtK(egM));se('i-mg',mg+'%');
+  se('i-mi',fmtK(ingM));se('i-mtx',mesV.length+' ventas');
+  se('i-me',fmtK(egM));
+  se('i-costo',fmtK(costoM));se('i-mg',mg+'% margen bruto');
   var metaOk=ingM>=APORTE;
   se('i-meta',metaOk?'Cubierta':'Faltan '+fmtK(APORTE-ingM));
   se('i-meta-s',metaOk?'del auto':'para cuota auto');
-  var ime=document.getElementById('i-meta');
-  if(ime)ime.style.color=metaOk?'var(--su)':'var(--wa)';
+  var ime=document.getElementById('i-meta');if(ime)ime.style.color=metaOk?'var(--su)':'var(--wa)';
+  var icv=document.getElementById('i-costo');if(icv)icv.closest('.kc').className='kc';
 
   var ult=mesV.slice(-4).reverse();
-  se('i-ult',ult.length?ult.map(function(v){return itemHTML(v.producto+(v.cliente?' · '+v.cliente:''),v.fecha.slice(8,10)+'-'+v.fecha.slice(5,7)+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span>',fmt(v.total),'var(--ac)','p');}).join(''):'<div class="empty">Sin ventas este mes aun</div>');
-  se('v-hoy',hoyV.length?hoyV.map(function(v){return itemHTMLDel(v.producto+(v.cliente?' · '+v.cliente:''),'x'+v.cantidad+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span>',fmt(v.total),'var(--ac)','p',v.id,'delVenta');}).join(''):'<div class="empty">Sin ventas hoy aun</div>');
-  se('e-hoy',hoyE.length?hoyE.map(function(e){return itemHTMLDel(e.descripcion,e.tipo,'-'+fmt(e.total),'var(--da)','n',e.id,'delEgreso');}).join(''):'<div class="empty">Sin egresos hoy</div>');
+  se('i-ult',ult.length?ult.map(function(v){return'<div class="item"><div class="dot" style="background:var(--ac)"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+'</div><div class="is">'+v.fecha.slice(8,10)+'-'+v.fecha.slice(5,7)+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="ia p">'+fmt(v.total)+'</div></div>';}).join(''):'<div class="empty">Sin ventas este mes aun</div>');
+
+  se('v-hoy',hoyV.length?hoyV.map(function(v){return'<div class="item"><div class="dot" style="background:var(--ac)"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+'</div><div class="is">x'+v.cantidad+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div style="display:flex;align-items:center;gap:7px"><div class="ia p">'+fmt(v.total)+'</div><button class="xb" onclick="delVenta('+v.id+')">x</button></div></div>';}).join(''):'<div class="empty">Sin ventas hoy aun</div>');
+
+  se('e-hoy',hoyE.length?hoyE.map(function(e){return'<div class="item"><div class="dot" style="background:var(--da)"></div><div class="ii"><div class="it">'+e.descripcion+'</div><div class="is">'+e.tipo+'</div></div><div style="display:flex;align-items:center;gap:7px"><div class="ia n">-'+fmt(e.total)+'</div><button class="xb" onclick="delEgreso('+e.id+')">x</button></div></div>';}).join(''):'<div class="empty">Sin egresos hoy</div>');
 
   drawDias(mesV);
 
   var ro=ub-egM-FIJOS;
-  se('er-t','<tr class="erh"><td>Concepto</td><td>'+mesNow()+'</td></tr><tr><td>Ingresos</td><td>'+fmt(ingM)+'</td></tr><tr><td style="color:var(--tx2)">(-) Costo materiales</td><td style="color:var(--da)">('+fmt(costoM)+')</td></tr><tr><td><strong>Utilidad bruta</strong></td><td style="color:var(--su)"><strong>'+fmt(ub)+'</strong></td></tr><tr><td style="color:var(--tx3);font-size:11px">Margen</td><td style="color:var(--tx3);font-size:11px">'+mg+'%</td></tr><tr><td style="color:var(--tx2)">(-) Egresos variables</td><td style="color:var(--da)">('+fmt(egM)+')</td></tr><tr><td style="color:var(--tx2)">(-) Costos fijos</td><td style="color:var(--da)">('+fmt(FIJOS)+')</td></tr><tr class="ert"><td>Resultado</td><td style="color:'+(ro>=0?'var(--su)':'var(--da)')+'"><strong>'+fmt(ro)+'</strong></td></tr>');
+  se('er-t','<tr class="erh"><td>Concepto</td><td>'+mesNow()+'</td></tr>'+
+    '<tr><td>Ingresos brutos</td><td>'+fmt(ingM)+'</td></tr>'+
+    '<tr><td style="color:var(--tx2)">(-) Costo materiales</td><td style="color:var(--da)">('+fmt(costoM)+')</td></tr>'+
+    '<tr><td><strong>Utilidad bruta</strong></td><td style="color:var(--su)"><strong>'+fmt(ub)+'</strong></td></tr>'+
+    '<tr><td style="color:var(--tx3);font-size:11px">Margen bruto</td><td style="color:var(--tx3);font-size:11px">'+mg+'%</td></tr>'+
+    '<tr><td style="color:var(--tx2)">(-) Egresos variables</td><td style="color:var(--da)">('+fmt(egM)+')</td></tr>'+
+    '<tr><td style="color:var(--tx2)">(-) Costos fijos</td><td style="color:var(--da)">('+fmt(FIJOS)+')</td></tr>'+
+    '<tr class="ert"><td>Resultado</td><td style="color:'+(ro>=0?'var(--su)':'var(--da)')+'"><strong>'+fmt(ro)+'</strong></td></tr>');
 
   var dt=new Date().getDate(),rit=dt>0?ingM/dt:0,proy=Math.round(rit*30);
   se('p-dias',dt);se('p-rit',fmtK(rit));se('p-proy',fmtK(proy));
-  var pe=document.getElementById('p-proy');
-  if(pe)pe.closest('.kc').className='kc '+(proy>=META?'su':'wa');
+  var pe=document.getElementById('p-proy');if(pe)pe.closest('.kc').className='kc '+(proy>=META?'su':'wa');
 
   var pct=Math.min(100,Math.round(ingM/APORTE*100));
   var ab=document.getElementById('a-bar');if(ab)ab.style.width=pct+'%';
   se('a-pct',pct+'%');
   se('a-det','Necesitas '+fmt(APORTE)+' del emprendimiento. Llevas '+fmt(ingM));
   var cuotas=gC(),mesesC=['Ago','Sep','Oct','Nov','Dic','Ene'],pf=cuotas.indexOf(false);
-  se('cuotas-g',cuotas.map(function(p,i){var cls=p?'p':i===pf?'w':'g';return '<div class="citem" onclick="togCuota('+i+')"><div class="cn">Cuota '+(i+1)+' '+mesesC[i]+'</div><div class="ce '+cls+'">'+(p?'Pagada':i===pf?'Proxima':'Pendiente')+'</div></div>';}).join(''));
+  se('cuotas-g',cuotas.map(function(p,i){var cls=p?'p':i===pf?'w':'g';return'<div class="citem" onclick="togCuota('+i+')"><div class="cn">Cuota '+(i+1)+' '+mesesC[i]+'</div><div class="ce '+cls+'">'+(p?'Pagada':i===pf?'Proxima':'Pendiente')+'</div></div>';}).join(''));
 
   drawMix(mesV);
 }
 
-function isMes(f){var d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),s=String(f);return s.indexOf(y+'-'+m)===0||s.indexOf(m+'-'+y)===0;}
-function sum(arr){return arr.reduce(function(a,v){return a+v.total;},0);}
-function sumE(arr){return arr.reduce(function(a,e){return a+e.total;},0);}
-
-function itemHTML(t,s,a,dc,ac){return '<div class="item"><div class="dot" style="background:'+dc+'"></div><div class="ii"><div class="it">'+t+'</div><div class="is">'+s+'</div></div><div class="ia '+ac+'">'+a+'</div></div>';}
-function itemHTMLDel(t,s,a,dc,ac,id,fn){return '<div class="item"><div class="dot" style="background:'+dc+'"></div><div class="ii"><div class="it">'+t+'</div><div class="is">'+s+'</div></div><div style="display:flex;align-items:center;gap:7px"><div class="ia '+ac+'">'+a+'</div><button class="xb" onclick="'+fn+'('+id+')">x</button></div></div>';}
-
 function drawDias(mesV){
   var bd={};mesV.forEach(function(v){bd[v.fecha]=(bd[v.fecha]||0)+v.total;});
   var dk=Object.keys(bd).sort();
-  var c=document.getElementById('ch-dias');if(!c)return;
+  var c=document.getElementById('ch-dias');if(!c||!dk.length)return;
   if(charts.dias)charts.dias.destroy();
-  if(!dk.length)return;
   charts.dias=new Chart(c,{type:'bar',data:{labels:dk.map(function(d){return d.slice(8);}),datasets:[{data:dk.map(function(d){return bd[d];}),backgroundColor:'rgba(124,111,247,.7)',borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#9090b0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#9090b0',font:{size:9}},grid:{display:false}}}}});
 }
 
@@ -547,25 +549,34 @@ function drawMix(mesV){
   charts.mix=new Chart(c,{type:'doughnut',data:{labels:sp.map(function(x){return x[0];}),datasets:[{data:sp.map(function(x){return x[1];}),backgroundColor:['#7c6ff7','#4ecdc4','#ffd93d','#ff6b6b','#6bcb77','#a29bfe'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{color:'#9090b0',font:{size:10},padding:6,boxWidth:8}}}}});
 }
 
-// ============================================================
-// HISTORIAL
-// ============================================================
+function renderVentasMes(q){
+  var mesV=todasVentasMes.length?todasVentasMes:allMesV();
+  var fil=q?mesV.filter(function(v){return(v.producto+' '+(v.cliente||'')).toLowerCase().indexOf(q.toLowerCase())!==-1;}):mesV;
+  var totB=sum(fil),totC=fil.reduce(function(a,v){return a+costo(v);},0);
+  var mg=totB>0?Math.round((totB-totC)/totB*100):0;
+  se('vm-sub',fil.length+' ventas | '+mesNow());
+  se('vm-tot',fmt(totB));se('vm-costo',fmt(totC));se('vm-mg',mg+'%');
+  var sorted=fil.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
+  se('vm-lista',sorted.length?sorted.map(function(v){
+    return'<div class="venta-row"><div class="venta-info"><div class="venta-prod">'+v.producto+(v.cliente?' · '+v.cliente:'')+'</div><div class="venta-sub">'+v.fecha.slice(8,10)+'-'+v.fecha.slice(5,7)+' · x'+v.cantidad+' · <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="venta-monto">'+fmt(v.total)+'</div></div>';
+  }).join(''):'<div class="empty">Sin resultados</div>');
+}
+
+function filtrarVentas(){renderVentasMes(document.getElementById('vm-q').value||'');}
+
 function renderHist(){
   var todas=allHistV(),pm={};
   todas.forEach(function(v){if(!pm[v.mes])pm[v.mes]={ing:0,tx:0,pr:{}};pm[v.mes].ing+=v.total;pm[v.mes].tx++;pm[v.mes].pr[v.producto]=(pm[v.mes].pr[v.producto]||0)+v.total;});
   var ord=['Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var md=ord.filter(function(m){return pm[m];});
-  se('h-kpis',md.slice(0,3).map(function(m,i){var cls=['ac','','su'][i]||'';return '<div class="kc '+cls+'"><div class="kl">'+m+'</div><div class="kv">'+fmtK(pm[m].ing)+'</div><div class="ks">'+pm[m].tx+' ventas</div></div>';}).join(''));
+  se('h-kpis',md.slice(0,3).map(function(m,i){var cls=['ac','','su'][i]||'';return'<div class="kc '+cls+'"><div class="kl">'+m+'</div><div class="kv">'+fmtK(pm[m].ing)+'</div><div class="ks">'+pm[m].tx+' ventas</div></div>';}).join(''));
   var cm=document.getElementById('ch-meses');if(cm){if(charts.meses)charts.meses.destroy();charts.meses=new Chart(cm,{type:'bar',data:{labels:md,datasets:[{data:md.map(function(m){return pm[m].ing;}),backgroundColor:['rgba(124,111,247,.8)','rgba(78,205,196,.8)','rgba(107,203,119,.8)','rgba(255,217,61,.8)'],borderWidth:0,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#9090b0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#9090b0',font:{size:10}},grid:{display:false}}}}});}
   var bp={};todas.forEach(function(v){bp[v.producto]=(bp[v.producto]||0)+v.total;});
   var sp=Object.entries(bp).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
   var cp=document.getElementById('ch-prods');if(cp){if(charts.prods)charts.prods.destroy();charts.prods=new Chart(cp,{type:'bar',data:{labels:sp.map(function(x){return x[0];}),datasets:[{data:sp.map(function(x){return x[1];}),backgroundColor:'rgba(124,111,247,.7)',borderWidth:0,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return fmtK(v);},color:'#9090b0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#9090b0',font:{size:10}},grid:{display:false}}}}});}
-  se('h-det',md.map(function(m){var d=pm[m],tp=Object.entries(d.pr).sort(function(a,b){return b[1]-a[1];})[0];return '<div class="item" style="flex-direction:column;align-items:flex-start;gap:5px"><div style="display:flex;width:100%;justify-content:space-between"><span style="font-size:14px;font-weight:700">'+m+' 2026</span><span style="font-size:15px;font-weight:700;color:var(--ac)">'+fmt(d.ing)+'</span></div><div style="font-size:11px;color:var(--tx2)">'+d.tx+' transacciones · Ticket: '+fmt(d.ing/d.tx)+'</div>'+(tp?'<div style="font-size:11px;color:var(--tx3)">Top: '+tp[0]+' ('+fmt(tp[1])+')</div>':'')+'</div>';}).join(''));
+  se('h-det',md.map(function(m){var d=pm[m],tp=Object.entries(d.pr).sort(function(a,b){return b[1]-a[1];})[0];return'<div class="item" style="flex-direction:column;align-items:flex-start;gap:5px"><div style="display:flex;width:100%;justify-content:space-between"><span style="font-size:14px;font-weight:700">'+m+' 2026</span><span style="font-size:15px;font-weight:700;color:var(--ac)">'+fmt(d.ing)+'</span></div><div style="font-size:11px;color:var(--tx2)">'+d.tx+' transacciones · Ticket: '+fmt(d.ing/d.tx)+'</div>'+(tp?'<div style="font-size:11px;color:var(--tx3)">Top: '+tp[0]+' ('+fmt(tp[1])+')</div>':'')+'</div>';}).join(''));
 }
 
-// ============================================================
-// CLIENTES
-// ============================================================
 function renderCli(q){
   var todas=allHistV(),bc={};
   todas.forEach(function(v){if(!v.cliente)return;var k=v.cliente;if(!bc[k])bc[k]={n:k,t:0,tx:0,m:[],pr:{},ult:''};bc[k].t+=v.total;bc[k].tx++;if(bc[k].m.indexOf(v.mes)===-1)bc[k].m.push(v.mes);bc[k].pr[v.producto]=(bc[k].pr[v.producto]||0)+1;if(!bc[k].ult||v.fecha>bc[k].ult)bc[k].ult=v.fecha;});
@@ -573,18 +584,12 @@ function renderCli(q){
   se('cli-sub',cls.length+' clientes unicos');
   var fil=q?cls.filter(function(c){return c.n.toLowerCase().indexOf(q.toLowerCase())!==-1;}):cls;
   if(!fil.length){se('cli-lista','<div class="empty">Sin resultados</div>');return;}
-  se('cli-lista',fil.map(function(c,i){var tp=Object.entries(c.pr).sort(function(a,b){return b[1]-a[1];})[0];var dias=c.ult?Math.floor((Date.now()-new Date(c.ult))/864e5):999;var dc=dias>45?'var(--da)':dias>20?'var(--wa)':'var(--su)';return '<div class="item" style="flex-direction:column;align-items:flex-start;gap:5px;margin-bottom:7px"><div style="display:flex;width:100%;justify-content:space-between"><span style="font-size:13px;font-weight:700">'+(i+1)+'. '+c.n+'</span><span style="font-size:14px;font-weight:700;color:var(--ac)">'+fmt(c.t)+'</span></div><div style="font-size:11px;color:var(--tx2)">'+c.tx+' compras · Ticket: '+fmt(c.t/c.tx)+' · '+c.m.join(', ')+'</div><div style="display:flex;justify-content:space-between;width:100%"><span style="font-size:11px;color:var(--tx3)">'+(tp?tp[0]:'')+'</span><span style="font-size:10px;font-weight:700;color:'+dc+'">'+(dias<999?dias+'d sin comprar':'—')+'</span></div></div>';}).join(''));
+  se('cli-lista',fil.map(function(c,i){var tp=Object.entries(c.pr).sort(function(a,b){return b[1]-a[1];})[0];var dias=c.ult?Math.floor((Date.now()-new Date(c.ult))/864e5):999;var dc=dias>45?'var(--da)':dias>20?'var(--wa)':'var(--su)';return'<div class="item" style="flex-direction:column;align-items:flex-start;gap:5px;margin-bottom:7px"><div style="display:flex;width:100%;justify-content:space-between"><span style="font-size:13px;font-weight:700">'+(i+1)+'. '+c.n+'</span><span style="font-size:14px;font-weight:700;color:var(--ac)">'+fmt(c.t)+'</span></div><div style="font-size:11px;color:var(--tx2)">'+c.tx+' compras · Ticket: '+fmt(c.t/c.tx)+' · '+c.m.join(', ')+'</div><div style="display:flex;justify-content:space-between;width:100%"><span style="font-size:11px;color:var(--tx3)">'+(tp?tp[0]:'')+'</span><span style="font-size:10px;font-weight:700;color:'+dc+'">'+(dias<999?dias+'d sin comprar':'—')+'</span></div></div>';}).join(''));
 }
 function buscarCli(){renderCli(document.getElementById('cli-q').value||'');}
 
-// ============================================================
-// CUOTAS AUTO
-// ============================================================
 function togCuota(i){var c=gC();c[i]=!c[i];sC(c);toast(c[i]?'Cuota '+(i+1)+' pagada':'Cuota desmarcada','ok');render();}
 
-// ============================================================
-// EXPORTAR / LIMPIAR
-// ============================================================
 function exportar(){
   var vv=allMesV(),ee=gE().filter(function(e){return isMes(e.fecha);});
   if(!vv.length&&!ee.length){toast('Sin datos','err');return;}
@@ -599,20 +604,10 @@ function exportar(){
   toast('Excel descargado','ok');
 }
 
-function limpiar(){
-  if(!confirm('Borrar ventas y egresos nuevos del mes? Los historicos se mantienen.'))return;
-  localStorage.removeItem('co_v');localStorage.removeItem('co_e');
-  toast('Limpiado','ok');render();
-}
+function limpiar(){if(!confirm('Borrar ventas y egresos nuevos del mes?'))return;localStorage.removeItem('co_v');localStorage.removeItem('co_e');toast('Limpiado','ok');render();}
 
-// ============================================================
-// TOAST
-// ============================================================
 function toast(msg,tipo){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast show '+(tipo==='ok'?'ok':'err');setTimeout(function(){if(t)t.className='toast';},2500);}
 
-// ============================================================
-// INIT
-// ============================================================
 function init(){
   var d=new Date();
   var dias=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
@@ -624,24 +619,12 @@ function init(){
   var vs=document.getElementById('v-sem');if(vs)vs.value=semNow();
   var au=document.getElementById('api-url');if(au&&API_URL)au.value=API_URL;
   var cb=document.getElementById('cfg-box');if(cb)cb.style.display=API_URL?'none':'block';
-  if(API_URL){setSyncStatus('ok','Conectado a Google Sheets');syncManual();}
-  else{setSyncStatus('','Sin configurar — ve a Finanzas');}
+  if(API_URL){setSyncStatus('ok','Conectado');} else{setSyncStatus('','Sin configurar');}
   render();
 }
 
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
 window.addEventListener('load',init);
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js').then(function(reg) {
-      console.log('SW registrado:', reg.scope);
-    }).catch(function(err) {
-      console.log('SW error:', err);
-    });
-  });
-}
 </script>
 </body>
 </html>
