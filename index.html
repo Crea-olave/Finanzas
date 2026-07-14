@@ -345,13 +345,16 @@ function gJulio(){try{return JSON.parse(localStorage.getItem('co_julio')||'[]');
 function sJulio(d){localStorage.setItem('co_julio',JSON.stringify(d));}
 
 function allMesV(){
-  var delSheet=gJulio();
   var mes=mesNow();
-  console.log('allMesV: mes='+mes+' julio='+delSheet.length+' gV='+gV().length);
+  var julio=gJulio();
+  var locales=gV();
   if(mes==='Julio'){
-    return delSheet;
+    // Combinar Sheet + locales sin duplicar por id
+    var ids=julio.map(function(v){return v.id;});
+    var extra=locales.filter(function(v){return ids.indexOf(v.id)===-1;});
+    return julio.concat(extra);
   }
-  return gV();
+  return locales;
 }
 function allHistV(){
   // Mayo+Junio = HIST_V (hardcodeado)
@@ -449,13 +452,10 @@ async function syncManual(){
         });
       }
       sJulio(convertidas);
-      console.log('Julio guardado:',convertidas.length,'ventas');
-      console.log('Primera venta:',convertidas[0]);
-      console.log('mesNow():',mesNow());
-      console.log('gJulio().length:',gJulio().length);
+      localStorage.removeItem('co_v'); // limpiar locales ya que están en el Sheet
       setSyncStatus('ok','Sincronizado — '+convertidas.length+' ventas');
-      toast(convertidas.length+' ventas cargadas','ok');
-      setTimeout(function(){render();},200);
+      toast(convertidas.length+' ventas','ok');
+      setTimeout(function(){render();},100);
     } else if(d.ok&&Array.isArray(d.data)&&d.data.length===0){
       setSyncStatus('ok','Sheet vacio para '+mesNow());
       toast('Sheet sin ventas en '+mesNow(),'ok');
