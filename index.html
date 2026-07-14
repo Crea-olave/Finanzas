@@ -419,39 +419,49 @@ async function syncManual(){
   if(!API_URL){toast('Configura la URL en Finanzas','err');return;}
   setSyncStatus('syn','Sincronizando...');
   try{
-    var r=await fetch(API_URL+'?action=ventas&mes='+mesNow());
-    var d=await r.json();
-    if(d.ok&&d.data){
-      // Filtrar filas vacías o sin total
-      var validas=d.data.filter(function(v){
-        var prod=(v.Producto||v.producto||'').trim();
-        var tot=parseFloat(v.Total||v.total||0);
-        return prod&&prod.length>0&&tot>0;
-      });
-      // Convertir formato Sheet a formato app
-      var convertidas=validas.map(function(v,i){
-        return{
-          id:'sheet_'+i+'_'+Date.now(),
-          fecha:normFecha(v.Fecha||v.fecha||''),
-          cliente:v.Cliente||v.cliente||'',
-          semana:v.Semana||v.semana||1,
-          mes:v.Mes||v.mes||mesNow(),
-          producto:v.Producto||v.producto,
+    var url=API_URL+'?action=ventas&mes='+encodeURIComponent(mesNow());
+    var resp=await fetch(url,{method:'GET',mode:'cors'});
+    var texto=await resp.text();
+    var d=JSON.parse(texto);
+    if(d.ok&&Array.isArray(d.data)&&d.data.length>0){
+      var convertidas=[];
+      for(var i=0;i<d.data.length;i++){
+        var v=d.data[i];
+        var prod=String(v.Producto||v.producto||'').trim();
+        var totRaw=v.Total||v.total||v['Total']||0;
+        var tot=parseFloat(String(totRaw).replace(/[^0-9.-]/g,''))||0;
+        if(!prod||tot<=0) continue;
+        var fechaRaw=v.Fecha||v.fecha||'';
+        var fechaStr=String(fechaRaw);
+        // Tomar solo YYYY-MM-DD de cualquier formato
+        var fecha=fechaStr.slice(0,10);
+        convertidas.push({
+          id:'s'+i,
+          fecha:fecha,
+          cliente:String(v.Cliente||v.cliente||'').trim(),
+          semana:parseInt(v.Semana||v.semana||1)||1,
+          mes:String(v.Mes||v.mes||mesNow()).trim(),
+          producto:prod,
           cantidad:parseFloat(v.Cantidad||v.cantidad)||1,
-          precio:parseFloat(v['Precio Unitario']||v.precio)||0,
-          total:parseFloat(v.Total||v.total||0),
-          pago:v['Metodo Pago']||v.pago||'Transferencia'
-        };
-      });
-      // REEMPLAZAR completamente los datos de Julio con el Sheet
-      // El Sheet es la fuente de verdad — no hay duplicados posibles
+          precio:parseFloat(v['Precio Unitario']||v['PrecioUnitario']||v.precio)||0,
+          total:tot,
+          pago:String(v['Metodo Pago']||v.MetodoPago||v.pago||'Transferencia').trim()
+        });
+      }
       sJulio(convertidas);
-      toast(convertidas.length+' ventas en Julio','ok');
+      setSyncStatus('ok','Sincronizado — '+convertidas.length+' ventas');
+      toast(convertidas.length+' ventas cargadas','ok');
+      render();
+    } else if(d.ok&&Array.isArray(d.data)&&d.data.length===0){
+      setSyncStatus('ok','Sheet vacio para '+mesNow());
+      toast('Sheet sin ventas en '+mesNow(),'ok');
+    } else {
+      setSyncStatus('err','Error: '+(d.error||'respuesta inesperada'));
+      toast('Error al sincronizar','err');
     }
-    setSyncStatus('ok','Sincronizado '+new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}));
-    render();
   }catch(err){
-    setSyncStatus('err','Sin conexion');
+    setSyncStatus('err','Sin conexion o error de red');
+    toast('Error: '+err.message,'err');
   }
 }
 
@@ -514,7 +524,25 @@ async function syncManual(){
   }
 }
 
-async function enviarV(v){if(!API_URL)return;try{await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'addVenta',...v})});}catch(e){}}
+async function enviarV(v){
+  if(!API_URL)return;
+  try{
+    // Usar URL params en vez de POST body para evitar CORS preflight
+    var params=new URLSearchParams({
+      action:'addVenta',
+      fecha:v.fecha,
+      cliente:v.cliente||'',
+      semana:v.semana||1,
+      mes:v.mes||mesNow(),
+      producto:v.producto,
+      cantidad:v.cantidad||1,
+      precio:v.precio||0,
+      total:v.total||0,
+      pago:v.pago||'Transferencia'
+    });
+    await fetch(API_URL+'?'+params.toString(),{method:'GET',mode:'cors'});
+  }catch(e){console.log('Error enviando venta:',e);}
+}
 async function enviarE(e){if(!API_URL)return;try{await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'addEgreso',...e})});}catch(e){}}
 
 function onProdChange(){
