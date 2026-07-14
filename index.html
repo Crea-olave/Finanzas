@@ -345,10 +345,10 @@ function gJulio(){try{return JSON.parse(localStorage.getItem('co_julio')||'[]');
 function sJulio(d){localStorage.setItem('co_julio',JSON.stringify(d));}
 
 function allMesV(){
-  // Julio viene SOLO del Sheet (co_julio)
-  // Las ventas nuevas se envían al Sheet y aparecen en el próximo sync
   var delSheet=gJulio();
-  if(mesNow()==='Julio'){
+  var mes=mesNow();
+  console.log('allMesV: mes='+mes+' julio='+delSheet.length+' gV='+gV().length);
+  if(mes==='Julio'){
     return delSheet;
   }
   return gV();
@@ -449,9 +449,13 @@ async function syncManual(){
         });
       }
       sJulio(convertidas);
+      console.log('Julio guardado:',convertidas.length,'ventas');
+      console.log('Primera venta:',convertidas[0]);
+      console.log('mesNow():',mesNow());
+      console.log('gJulio().length:',gJulio().length);
       setSyncStatus('ok','Sincronizado — '+convertidas.length+' ventas');
       toast(convertidas.length+' ventas cargadas','ok');
-      render();
+      setTimeout(function(){render();},200);
     } else if(d.ok&&Array.isArray(d.data)&&d.data.length===0){
       setSyncStatus('ok','Sheet vacio para '+mesNow());
       toast('Sheet sin ventas en '+mesNow(),'ok');
