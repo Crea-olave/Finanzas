@@ -434,7 +434,13 @@ function allHistV(){
 // ============================================================
 function fmt(n){return '$'+Math.round(n).toLocaleString('es-CL');}
 function fmtK(n){return n>=1000?'$'+(n/1000).toFixed(0)+'k':fmt(n);}
-function hoy(){return new Date().toISOString().split('T')[0];}
+function hoy(){
+  var d=new Date();
+  var y=d.getFullYear();
+  var m=String(d.getMonth()+1).padStart(2,'0');
+  var day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 function mesNow(){var m=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];return m[new Date().getMonth()];}
 function semNow(){var d=new Date().getDate();return d<=7?'1':d<=14?'2':d<=21?'3':'4';}
 function isHoy(f){return String(f).slice(0,10)===hoy();}
