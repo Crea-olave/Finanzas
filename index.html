@@ -340,7 +340,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="kc"><div class="kl">Días del mes</div><div class="kv" id="p-dias">0</div></div>
     <div class="kc"><div class="kl">Ritmo diario</div><div class="kv" id="p-rit">$0</div></div>
     <div class="kc su"><div class="kl">Proyección mes</div><div class="kv" id="p-proy">$0</div></div>
-    <div class="kc wa"><div class="kl">Meta mínima</div><div class="kv">$335k</div><div class="ks">Fijos + cuota $300k</div></div>
+    <div class="kc wa"><div class="kl">Meta mínima</div><div class="kv">$335.000</div><div class="ks">Fijos + cuota $300.000</div></div>
   </div>
 
   <div class="cc"><div class="ct">Mix productos</div><canvas id="ch-mix"></canvas></div>
@@ -441,7 +441,7 @@ function allHistV(){
 // UTILS
 // ============================================================
 function fmt(n){return '$'+Math.round(n).toLocaleString('es-CL');}
-function fmtK(n){return n>=1000?'$'+(n/1000).toFixed(0)+'k':fmt(n);}
+function fmtK(n){return fmt(n);} // número completo en toda la app
 function hoy(){
   var d=new Date();
   var y=d.getFullYear();
@@ -811,7 +811,7 @@ function render(){
   se('i-mg',mg+'%');
   se('i-costo-s','Costo mat: '+fmtK(costoM));
   se('i-meta',metaOk?'✓ Cubierta':'Faltan '+fmtK(APORTE-neto));
-  se('i-meta-s',metaOk?'🎉 Auto cubierto':'del ingreso neto (necesitas $300k)');
+  se('i-meta-s',metaOk?'🎉 Auto cubierto':'del ingreso neto (necesitas $300.000)');
   var metaEl=document.getElementById('i-meta');
   if(metaEl)metaEl.closest('.kc').className='kc '+(metaOk?'su':'wa');
 
