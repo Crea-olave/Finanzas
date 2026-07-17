@@ -83,6 +83,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
 /* ITEMS */
 .item{background:var(--s);border:1px solid var(--b);border-radius:var(--rs);padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:9px;animation:slideIn .2s ease}
+.delb{width:28px;height:28px;border:none;background:rgba(255,107,107,.12);color:var(--da);border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .ii{flex:1;min-width:0}
@@ -207,6 +208,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="kc"><div class="kl">Margen bruto</div><div class="kv" id="i-mg">0%</div><div class="ks" id="i-costo-s"></div></div>
     <div class="kc wa"><div class="kl">Meta auto 🚗</div><div class="kv" id="i-meta">—</div><div class="ks" id="i-meta-s"></div></div>
   </div>
+  <div class="kg" style="grid-template-columns:1fr">
+    <div class="kc da"><div class="kl">Egresos del mes</div><div class="kv" id="i-egm">$0</div><div class="ks" id="i-egm-s">0 items</div></div>
+  </div>
 
   <div class="sec">Récord del mes <span id="rec-label" style="font-size:10px;color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0"></span></div>
   <div class="kg">
@@ -244,7 +248,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <option>Figura de Yeso</option><option>Caja Grande</option><option>Caja Mediana</option>
         <option>Figura Personalizada</option><option>Macetero Suculenta</option>
         <option>Promo 6x4000</option><option>Oferta Cyber 1</option><option>Oferta Cyber 2</option>
-        <option>Pulseras</option><option>Delivery</option><option>Otro</option>
+        <option>Pulseras</option><option>Pincel</option><option>Tempera unidad</option>
+        <option>Caja Acrílico</option><option>Acrílico unidad</option>
+        <option>Delivery</option><option>Otro</option>
       </select>
     </div>
     <div class="r2">
@@ -389,13 +395,15 @@ var PRECIOS = {
   'Figura de Yeso':0,'Caja Grande':5500,'Caja Mediana':4500,
   'Figura Personalizada':8500,'Macetero Suculenta':3500,
   'Promo 6x4000':4000,'Oferta Cyber 1':10000,'Oferta Cyber 2':5000,
-  'Pulseras':3000,'Delivery':2000,'Otro':0
+  'Pulseras':3000,'Pincel':500,'Tempera unidad':500,
+  'Caja Acrílico':6500,'Acrílico unidad':1000,'Delivery':2000,'Otro':0
 };
 var COSTOS = {
   'Figura de Yeso':150,'Figuras de Yeso':150,'Caja Grande':1055,'Caja Mediana':730,
   'Caja Pequeña':730,'Figura Personalizada':1950,'Macetero Suculenta':150,
   'Macetero Suculentas':150,'Promo 6x4000':450,'Oferta Cyber 1':1055,
-  'Oferta Cyber 2':970,'Pulseras':150,'Delivery':0,'Pinceles':80,'Otro':0
+  'Oferta Cyber 2':970,'Pulseras':150,'Pincel':100,'Tempera unidad':233,
+  'Caja Acrílico':2800,'Acrílico unidad':233,'Delivery':0,'Pinceles':80,'Otro':0
 };
 var MATS = {
   'Caja Grande':[{m:'Yeso 3 figuras 3D',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
@@ -509,13 +517,13 @@ function setSS(cls,txt){
 async function syncManual(){
   setSS('syn','Sincronizando...');
   try{
-    var url=API_URL+'?action=ventas&mes='+encodeURIComponent(mesNow());
-    var resp=await fetch(url);
-    var txt=await resp.text();
-    var d=JSON.parse(txt);
-    if(d.ok&&Array.isArray(d.data)){
+    var mes=encodeURIComponent(mesNow());
+    var rV=await fetch(API_URL+'?action=ventas&mes='+mes);
+    var dV=JSON.parse(await rV.text());
+    var okV=false, nV=0;
+    if(dV.ok&&Array.isArray(dV.data)){
       var conv=[];
-      d.data.forEach(function(v,i){
+      dV.data.forEach(function(v,i){
         var prod=String(v.Producto||v.producto||'').trim();
         var tot=parseFloat(String(v.Total||v.total||0).replace(/[^0-9.-]/g,''))||0;
         if(!prod||tot<=0)return;
@@ -532,13 +540,39 @@ async function syncManual(){
           pago:String(v['Metodo Pago']||v.pago||'Transferencia').trim()
         });
       });
-      sJulio(conv);
-      setSS('ok','Sincronizado — '+conv.length+' ventas');
-      toast(conv.length+' ventas cargadas ✓','ok');
+      sJulio(conv);okV=true;nV=conv.length;
+    }
+    // Egresos del mes desde el Sheet
+    var okE=false, nE=0;
+    try{
+      var rE=await fetch(API_URL+'?action=egresos&mes='+mes);
+      var dE=JSON.parse(await rE.text());
+      if(dE.ok&&Array.isArray(dE.data)){
+        var convE=[];
+        dE.data.forEach(function(e,i){
+          var monto=parseFloat(String(e.Monto||e.monto||e.Total||e.total||0).replace(/[^0-9.-]/g,''))||0;
+          var desc=String(e.Descripcion||e.descripcion||'').trim();
+          if(!desc||monto<=0)return;
+          convE.push({
+            id:String(e.ID||e.id||('sE'+i)),
+            fecha:String(e.Fecha||e.fecha||'').slice(0,10),
+            mes:String(e.Mes||e.mes||mesNow()).trim(),
+            descripcion:desc,
+            cantidad:parseFloat(e.Cantidad||e.cantidad)||1,
+            monto:monto,total:monto,
+            tipo:String(e.Tipo||e.tipo||'').trim()
+          });
+        });
+        sE(convE);okE=true;nE=convE.length;
+      }
+    }catch(e2){}
+    if(okV){
+      setSS('ok','Sincronizado — '+nV+' ventas'+(okE?' · '+nE+' egresos':''));
+      toast(nV+' ventas'+(okE?' y '+nE+' egresos':'')+' cargados ✓','ok');
       render();
     } else {
       setSS('err','Error al sincronizar');
-      toast('Error: '+(d.error||'sin datos'),'err');
+      toast('Error: '+(dV.error||'sin datos'),'err');
     }
   }catch(err){
     setSS('err','Sin conexion');
@@ -555,7 +589,7 @@ async function enviarV(v){
 
 async function enviarE(e){
   try{
-    var p=new URLSearchParams({action:'addEgreso',fecha:e.fecha,mes:e.mes,descripcion:e.descripcion,cantidad:e.cantidad||1,monto:e.total||0,tipo:e.tipo});
+    var p=new URLSearchParams({action:'addEgreso',id:e.id||'',fecha:e.fecha,mes:e.mes,descripcion:e.descripcion,cantidad:e.cantidad||1,monto:e.total||0,tipo:e.tipo});
     await fetch(API_URL+'?'+p.toString());
   }catch(e){}
 }
@@ -667,6 +701,39 @@ function addEgreso(btn){
 }
 
 // ============================================================
+// ELIMINAR (local + Sheet)
+// ============================================================
+async function delV(id){
+  var arr=gJulio();
+  var v=arr.find(function(x){return String(x.id)===String(id);});
+  if(!v)return;
+  if(!confirm('¿Eliminar esta venta?\n'+v.producto+' — '+fmt(v.total)))return;
+  sJulio(arr.filter(function(x){return String(x.id)!==String(id);}));
+  render();
+  try{
+    var p=new URLSearchParams({action:'delVenta',mes:v.mes||mesNow(),fecha:v.fecha,cliente:v.cliente||'',producto:v.producto,cantidad:v.cantidad||1,precio:v.precio||0,total:v.total||0});
+    var r=await fetch(API_URL+'?'+p.toString());
+    var d=JSON.parse(await r.text());
+    toast(d.ok?'Venta eliminada del Sheet ✓':'Ojo: '+(d.error||'no se borró en el Sheet'),d.ok?'ok':'err');
+  }catch(e){toast('Eliminada local (sin conexión al Sheet)','err');}
+}
+
+async function delE(id){
+  var arr=gE();
+  var e=arr.find(function(x){return String(x.id)===String(id);});
+  if(!e)return;
+  if(!confirm('¿Eliminar este egreso?\n'+e.descripcion+' — '+fmt(e.total)))return;
+  sE(arr.filter(function(x){return String(x.id)!==String(id);}));
+  render();
+  try{
+    var p=new URLSearchParams({action:'delEgreso',mes:e.mes||mesNow(),id:e.id,fecha:e.fecha,descripcion:e.descripcion,monto:e.total||0});
+    var r=await fetch(API_URL+'?'+p.toString());
+    var d=JSON.parse(await r.text());
+    toast(d.ok?'Egreso eliminado del Sheet ✓':'Ojo: '+(d.error||'no se borró en el Sheet'),d.ok?'ok':'err');
+  }catch(err){toast('Eliminado local (sin conexión al Sheet)','err');}
+}
+
+// ============================================================
 // RÉCORDS
 // ============================================================
 function checkRecord(){
@@ -734,6 +801,8 @@ function render(){
 
   // KPIs mes
   se('i-bruto',fmtK(ingM));
+  se('i-egm',fmtK(egM));
+  se('i-egm-s',mesE.length+' items · '+mesNow());
   se('i-ntx',mesV.length+' tx | '+mesNow());
   se('i-neto',fmtK(neto));
   se('i-neto-s',neto>=0?'Ventas − egresos reales':'⚠ Egresos altos');
@@ -785,12 +854,12 @@ function render(){
 
   // Ventas hoy
   se('v-hoy',hoyV.length?hoyV.map(function(v){
-    return'<div class="item"><div class="dot" style="background:var(--ac)"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+'</div><div class="is">x'+v.cantidad+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="ia p">'+fmt(v.total)+'</div></div>';
+    return'<div class="item"><div class="dot" style="background:var(--ac)"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+'</div><div class="is">x'+v.cantidad+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="ia p">'+fmt(v.total)+'</div><button class="delb" onclick="delV(\''+v.id+'\')">×</button></div>';
   }).join(''):'<div class="empty">Sin ventas hoy aún</div>');
 
   // Egresos hoy
   se('e-hoy',hoyE.length?hoyE.map(function(e){
-    return'<div class="item"><div class="dot" style="background:var(--da)"></div><div class="ii"><div class="it">'+e.descripcion+'</div><div class="is">'+e.tipo+'</div></div><div class="ia n">−'+fmt(e.total)+'</div></div>';
+    return'<div class="item"><div class="dot" style="background:var(--da)"></div><div class="ii"><div class="it">'+e.descripcion+'</div><div class="is">'+e.tipo+'</div></div><div class="ia n">−'+fmt(e.total)+'</div><button class="delb" onclick="delE(\''+e.id+'\')">×</button></div>';
   }).join(''):'<div class="empty">Sin egresos hoy</div>');
 
   // Charts
