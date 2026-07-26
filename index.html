@@ -16,7 +16,10 @@
 :root{
   --bg:#0f0f1a;--s:#1a1a2e;--s2:#232340;--b:#2e2e50;
   --ac:#7c6ff7;--ac2:#4ecdc4;--da:#ff6b6b;--wa:#ffd93d;--su:#6bcb77;
-  --tx:#f0f0f8;--tx2:#9090b0;--tx3:#5a5a7a;--r:14px;--rs:8px
+  --tx:#f0f0f8;--tx2:#9090b0;--tx3:#5a5a7a;--r:14px;--rs:8px;
+  --p-tr:#4ecdc4;--p-ef:#6bcb77;--p-pe:#ffd93d;
+  --t-mp:#ff9f43;--t-pk:#54a0ff;--t-inv:#a78bfa;--t-trp:#48dbfb;
+  --t-pub:#ff6b9d;--t-op:#9090b0;--t-auto:#ff6b6b
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overscroll-behavior:none}
@@ -262,7 +265,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="mat-t" id="mat-t">Materiales</div>
       <table class="mat-table"><tbody id="mat-body"></tbody><tfoot id="mat-foot"></tfoot></table>
     </div>
-    <button class="btn btn-gh" onclick="addAlCarrito(this)" style="margin-bottom:0">+ Agregar producto</button>
+    <button class="btn" onclick="addAlCarrito(this)" style="margin-bottom:0;background:rgba(78,205,196,.12);border:1.5px solid var(--ac2);color:var(--ac2)">+ Agregar producto</button>
   </div>
 
   <div id="carrito-box" style="display:none;background:var(--s);border:1px solid var(--ac);border-radius:var(--r);padding:14px;margin-bottom:12px">
@@ -273,7 +276,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div id="cart-items"></div>
   </div>
 
-  <button class="btn btn-ac" id="btn-registrar" onclick="registrarVenta(this)" style="display:none">Registrar venta ✓</button>
+  <button class="btn btn-su" id="btn-registrar" onclick="registrarVenta(this)" style="display:none">Registrar venta ✓</button>
 
   <div class="sec">Ventas de hoy</div>
   <div id="v-hoy"></div>
@@ -454,6 +457,15 @@ function semNow(){var d=new Date().getDate();return d<=7?'1':d<=14?'2':d<=21?'3'
 function isHoy(f){return String(f).slice(0,10)===hoy();}
 function isMes(f){var d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),s=String(f);return s.indexOf(y+'-'+m)===0||s.indexOf(m+'-'+y)===0;}
 function tagCls(p){return p==='Transferencia'?'t-tr':p==='Efectivo'?'t-ef':'t-pe';}
+function dotPago(p){return p==='Transferencia'?'var(--p-tr)':p==='Efectivo'?'var(--p-ef)':'var(--p-pe)';}
+function iconTipo(t){
+  var m={'Materia Prima':'🧱','Packaging':'📦','Inversion':'📈','Transporte':'🚚','Publicidad':'📣','Gasto Operativo':'🔧','Cuota Auto':'🚗'};
+  return m[t]||'💸';
+}
+function dotTipo(t){
+  var m={'Materia Prima':'var(--t-mp)','Packaging':'var(--t-pk)','Inversion':'var(--t-inv)','Transporte':'var(--t-trp)','Publicidad':'var(--t-pub)','Gasto Operativo':'var(--t-op)','Cuota Auto':'var(--t-auto)'};
+  return m[t]||'var(--da)';
+}
 function sum(arr){return arr.reduce(function(a,v){return a+(v.total||0);},0);}
 function sumE(arr){return arr.reduce(function(a,e){return a+(e.total||0);},0);}
 function costo(v){return (v.cantidad||1)*(COSTOS[v.producto]||0);}
@@ -580,6 +592,7 @@ async function syncManual(){
   }
 }
 
+var pendV={},pendE={};
 async function enviarV(v){
   try{
     var p=new URLSearchParams({action:'addVenta',fecha:v.fecha,cliente:v.cliente||'',semana:v.semana||1,mes:v.mes,producto:v.producto,cantidad:v.cantidad||1,precio:v.precio||0,total:v.total||0,pago:v.pago||'Transferencia'});
@@ -667,7 +680,7 @@ function registrarVenta(btn){
   carrito.forEach(function(item){
     var v={id:'l'+Date.now()+Math.random(),fecha:fecha,cliente:cli,semana:sem,mes:mesNow(),producto:item.prod,cantidad:item.cant,precio:item.precio,total:item.total,pago:pago};
     julio.push(v);
-    enviarV(v);
+    pendV[v.id]=enviarV(v);
   });
   sJulio(julio);
   carrito=[];
@@ -695,7 +708,7 @@ function addEgreso(btn){
   document.getElementById('e-desc').value='';
   document.getElementById('e-cant').value=1;
   document.getElementById('e-monto').value='';
-  enviarE(e);
+  pendE[e.id]=enviarE(e);
   toast('Egreso registrado','ok');
   render();
 }
@@ -710,6 +723,7 @@ async function delV(id){
   if(!confirm('¿Eliminar esta venta?\n'+v.producto+' — '+fmt(v.total)))return;
   sJulio(arr.filter(function(x){return String(x.id)!==String(id);}));
   render();
+  if(pendV[id]){ toast('Confirmando en el Sheet…','ok'); try{ await pendV[id]; }catch(e){} delete pendV[id]; }
   try{
     var p=new URLSearchParams({action:'delVenta',mes:v.mes||mesNow(),fecha:v.fecha,cliente:v.cliente||'',producto:v.producto,cantidad:v.cantidad||1,precio:v.precio||0,total:v.total||0});
     var r=await fetch(API_URL+'?'+p.toString());
@@ -725,6 +739,7 @@ async function delE(id){
   if(!confirm('¿Eliminar este egreso?\n'+e.descripcion+' — '+fmt(e.total)))return;
   sE(arr.filter(function(x){return String(x.id)!==String(id);}));
   render();
+  if(pendE[id]){ toast('Confirmando en el Sheet…','ok'); try{ await pendE[id]; }catch(err){} delete pendE[id]; }
   try{
     var p=new URLSearchParams({action:'delEgreso',mes:e.mes||mesNow(),id:e.id,fecha:e.fecha,descripcion:e.descripcion,monto:e.total||0});
     var r=await fetch(API_URL+'?'+p.toString());
@@ -849,17 +864,17 @@ function render(){
   var ult=mesV.slice(-4).reverse();
   se('i-ult',ult.length?ult.map(function(v){
     var frecuente=cliCount[v.cliente]>=3;
-    return'<div class="item"><div class="dot" style="background:var(--ac)"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+(frecuente?' ⭐':'')+'</div><div class="is">'+v.fecha.slice(8,10)+'-'+v.fecha.slice(5,7)+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="ia p">'+fmt(v.total)+'</div></div>';
+    return'<div class="item"><div class="dot" style="background:'+dotPago(v.pago)+'"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+(frecuente?' ⭐':'')+'</div><div class="is">'+v.fecha.slice(8,10)+'-'+v.fecha.slice(5,7)+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="ia p">'+fmt(v.total)+'</div></div>';
   }).join(''):'<div class="empty">Sin ventas este mes</div>');
 
   // Ventas hoy
   se('v-hoy',hoyV.length?hoyV.map(function(v){
-    return'<div class="item"><div class="dot" style="background:var(--ac)"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+'</div><div class="is">x'+v.cantidad+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="ia p">'+fmt(v.total)+'</div><button class="delb" onclick="delV(\''+v.id+'\')">×</button></div>';
+    return'<div class="item"><div class="dot" style="background:'+dotPago(v.pago)+'"></div><div class="ii"><div class="it">'+v.producto+(v.cliente?' · '+v.cliente:'')+'</div><div class="is">x'+v.cantidad+' <span class="tag '+tagCls(v.pago)+'">'+v.pago+'</span></div></div><div class="ia p">'+fmt(v.total)+'</div><button class="delb" onclick="delV(\''+v.id+'\')">×</button></div>';
   }).join(''):'<div class="empty">Sin ventas hoy aún</div>');
 
   // Egresos hoy
   se('e-hoy',hoyE.length?hoyE.map(function(e){
-    return'<div class="item"><div class="dot" style="background:var(--da)"></div><div class="ii"><div class="it">'+e.descripcion+'</div><div class="is">'+e.tipo+'</div></div><div class="ia n">−'+fmt(e.total)+'</div><button class="delb" onclick="delE(\''+e.id+'\')">×</button></div>';
+    return'<div class="item"><div class="dot" style="background:'+dotTipo(e.tipo)+'">'+'</div><div class="ii"><div class="it">'+iconTipo(e.tipo)+' '+e.descripcion+'</div><div class="is" style="color:'+dotTipo(e.tipo)+'">'+e.tipo+'</div></div><div class="ia n">−'+fmt(e.total)+'</div><button class="delb" onclick="delE(\''+e.id+'\')">×</button></div>';
   }).join(''):'<div class="empty">Sin egresos hoy</div>');
 
   // Charts

@@ -1,4 +1,4 @@
-var CACHE = 'crea-olave-v6';
+var CACHE = 'crea-olave-v8';
 var ASSETS = [
   '/',
   '/index.html',
