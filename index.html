@@ -212,7 +212,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="kc wa"><div class="kl">Meta auto 🚗</div><div class="kv" id="i-meta">—</div><div class="ks" id="i-meta-s"></div></div>
   </div>
   <div class="kg" style="grid-template-columns:1fr">
-    <div class="kc da"><div class="kl">Egresos del mes</div><div class="kv" id="i-egm">$0</div><div class="ks" id="i-egm-s">0 items</div></div>
+    <div class="kc da" onclick="sw(7)" style="cursor:pointer"><div class="kl">Egresos del mes <span style="color:var(--tx3);font-weight:400">— ver todos →</span></div><div class="kv" id="i-egm">$0</div><div class="ks" id="i-egm-s">0 items</div></div>
   </div>
 
   <div class="sec">Récord del mes <span id="rec-label" style="font-size:10px;color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0"></span></div>
@@ -232,7 +232,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div style="font-size:20px;font-weight:700;margin-bottom:4px">Nueva venta 🛒</div>
   <div style="font-size:11px;color:var(--tx2);margin-bottom:16px" id="v-lbl"></div>
 
-  <div class="f"><label>Fecha</label><input type="date" id="v-fecha"></div>
+  <div class="f"><label>Fecha</label>
+    <input type="date" id="v-fecha" onchange="confirmarFecha('v-fecha','v-fecha-conf')">
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button type="button" class="btn btn-gh" style="margin-bottom:0;padding:6px 10px;font-size:11px;flex:none" onclick="setFechaRapida('v-fecha','v-fecha-conf',0)">Hoy</button>
+      <button type="button" class="btn btn-gh" style="margin-bottom:0;padding:6px 10px;font-size:11px;flex:none" onclick="setFechaRapida('v-fecha','v-fecha-conf',1)">Ayer</button>
+      <div id="v-fecha-conf" style="font-size:11px;color:var(--su);align-self:center;font-weight:700"></div>
+    </div>
+  </div>
   <div class="f"><label>Cliente (@usuario)</label><input type="text" id="v-cli" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Ej: misscotecita"></div>
   <div class="r2">
     <div class="f"><label>Semana</label>
@@ -253,6 +260,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <option>Promo 6x4000</option><option>Oferta Cyber 1</option><option>Oferta Cyber 2</option>
         <option>Pulseras</option><option>Pincel</option><option>Tempera unidad</option>
         <option>Caja Acrílico</option><option>Acrílico unidad</option>
+        <option>Figura Grande</option><option>Figura con Palito</option>
         <option>Delivery</option><option>Otro</option>
       </select>
     </div>
@@ -286,7 +294,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div id="p-egreso" class="panel">
   <div style="font-size:20px;font-weight:700;margin-bottom:4px">Nuevo egreso 🧾</div>
   <div style="font-size:11px;color:var(--tx2);margin-bottom:16px">Gastos y compras del negocio</div>
-  <div class="f"><label>Fecha</label><input type="date" id="e-fecha"></div>
+  <div class="f"><label>Fecha</label>
+    <input type="date" id="e-fecha" onchange="confirmarFecha('e-fecha','e-fecha-conf')">
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button type="button" class="btn btn-gh" style="margin-bottom:0;padding:6px 10px;font-size:11px;flex:none" onclick="setFechaRapida('e-fecha','e-fecha-conf',0)">Hoy</button>
+      <button type="button" class="btn btn-gh" style="margin-bottom:0;padding:6px 10px;font-size:11px;flex:none" onclick="setFechaRapida('e-fecha','e-fecha-conf',1)">Ayer</button>
+      <div id="e-fecha-conf" style="font-size:11px;color:var(--su);align-self:center;font-weight:700"></div>
+    </div>
+  </div>
   <div class="f"><label>Descripcion</label><input type="text" id="e-desc" autocomplete="off" placeholder="Ej: 3 sacos de yeso"></div>
   <div class="r2">
     <div class="f"><label>Cantidad</label><input type="number" id="e-cant" value="1" min="1" inputmode="numeric"></div>
@@ -399,6 +414,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div id="vm-lista"></div>
 </div>
 
+<!-- EGRESOS MES -->
+<div id="p-egresos-mes" class="panel">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <button onclick="sw(0)" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:22px;line-height:1">←</button>
+    <div><div style="font-size:18px;font-weight:700">Egresos del mes</div><div style="font-size:11px;color:var(--tx2)" id="em-sub"></div></div>
+  </div>
+  <div class="f" style="margin-bottom:12px">
+    <input type="search" id="em-q" placeholder="Buscar descripción o tipo..." oninput="renderEgresosMes(this.value)" autocorrect="off">
+  </div>
+  <div class="cc" style="padding:12px 14px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;font-size:12px">
+      <span style="color:var(--tx2)">Total egresos</span><span id="em-tot" style="font-weight:700;color:var(--da)">$0</span>
+    </div>
+  </div>
+  <div id="em-lista"></div>
+</div>
+
 <nav class="nav">
   <div class="ni active" onclick="sw(0)" id="ni0"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</div>
   <div class="ni" onclick="sw(1)" id="ni1"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Venta</div>
@@ -421,14 +453,16 @@ var PRECIOS = {
   'Figura Personalizada':8500,'Macetero Suculenta':3500,
   'Promo 6x4000':4000,'Oferta Cyber 1':10000,'Oferta Cyber 2':5000,
   'Pulseras':3000,'Pincel':500,'Tempera unidad':500,
-  'Caja Acrílico':6500,'Acrílico unidad':1000,'Delivery':2000,'Otro':0
+  'Caja Acrílico':6500,'Acrílico unidad':1000,'Delivery':2000,
+  'Figura Grande':6000,'Figura con Palito':1000,'Otro':0
 };
 var COSTOS = {
   'Figura de Yeso':150,'Figuras de Yeso':150,'Caja Grande':1055,'Caja Mediana':730,
   'Caja Pequeña':730,'Figura Personalizada':1950,'Macetero Suculenta':150,
   'Macetero Suculentas':150,'Promo 6x4000':450,'Oferta Cyber 1':1055,
   'Oferta Cyber 2':970,'Pulseras':150,'Pincel':100,'Tempera unidad':233,
-  'Caja Acrílico':2800,'Acrílico unidad':233,'Delivery':0,'Pinceles':80,'Otro':0
+  'Caja Acrílico':2800,'Acrílico unidad':233,'Delivery':0,'Pinceles':80,
+  'Figura Grande':0,'Figura con Palito':0,'Otro':0
 };
 var MATS = {
   'Caja Grande':[{m:'Yeso 3 figuras 3D',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
@@ -455,6 +489,26 @@ function guardarMetas(){
   render();
 }
 function barColor(pct){return pct>=100?'var(--su)':pct>=60?'var(--wa)':'var(--da)';}
+function fmtFechaCorta(f){
+  var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var d=new Date(f+'T12:00:00'); // mediodía para evitar cualquier corrimiento de zona horaria al mostrarlo
+  return dias[d.getDay()]+' '+parseInt(f.slice(8,10))+' '+meses[parseInt(f.slice(5,7))-1];
+}
+function confirmarFecha(inputId,confId){
+  var v=document.getElementById(inputId).value;
+  var c=document.getElementById(confId);
+  if(!c)return;
+  if(!v){c.textContent='';return;}
+  c.textContent='✓ '+fmtFechaCorta(v);
+}
+function setFechaRapida(inputId,confId,diasAtras){
+  var d=new Date();
+  d.setDate(d.getDate()-diasAtras);
+  var f=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  document.getElementById(inputId).value=f;
+  confirmarFecha(inputId,confId);
+}
 function mesAnteriorNombre(){
   var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var idx=meses.indexOf(mesNow());
@@ -481,10 +535,21 @@ function gC(){try{return JSON.parse(localStorage.getItem('co_c')||'[false,false,
 function sC(d){localStorage.setItem('co_c',JSON.stringify(d));}
 
 function allMesV(){
-  return mesNow()==='Julio' ? gJulio() : [];
+  return gJulio(); // siempre es el mes vigente (lo que trajo el último sync), sin importar cuál sea
+}
+function archivadoHist(){
+  // Meses pasados que quedaron guardados localmente al cambiar de mes (ver syncManual)
+  var out=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.indexOf('co_hist_')===0){
+      try{out=out.concat(JSON.parse(localStorage.getItem(k))||[]);}catch(e){}
+    }
+  }
+  return out;
 }
 function allHistV(){
-  return HIST_V.concat(gJulio());
+  return HIST_V.concat(archivadoHist()).concat(gJulio());
 }
 
 // ============================================================
@@ -509,7 +574,7 @@ function iconProd(p){
   var m={'Figura de Yeso':'🎨','Caja Grande':'🎁','Caja Mediana':'🎁','Figura Personalizada':'✨',
     'Macetero Suculenta':'🌵','Promo 6x4000':'🏷️','Oferta Cyber 1':'⚡','Oferta Cyber 2':'⚡',
     'Pulseras':'📿','Pincel':'🖌️','Tempera unidad':'🎨','Caja Acrílico':'📦','Acrílico unidad':'💎',
-    'Delivery':'🚚'};
+    'Delivery':'🚚','Figura Grande':'🗿','Figura con Palito':'🍭'};
   return m[p]||'🔹';
 }
 function iconTipo(t){
@@ -545,9 +610,11 @@ function autoEmoji(pct){
 // ============================================================
 // NAV
 // ============================================================
+var scrollPos={};
 function sw(i){
+  scrollPos[curTab]=window.scrollY; // recuerda dónde estabas en la pestaña que dejas
   curTab=i;
-  var ids=['inicio','venta','egreso','historial','clientes','finanzas','ventas-mes'];
+  var ids=['inicio','venta','egreso','historial','clientes','finanzas','ventas-mes','egresos-mes'];
   ids.forEach(function(t,j){
     var p=document.getElementById('p-'+t),n=document.getElementById('ni'+j);
     if(p)p.classList.toggle('active',j===i);
@@ -556,7 +623,9 @@ function sw(i){
   if(i===3)renderHist();
   if(i===4)renderCli('');
   if(i===6)renderVentasMes('');
+  if(i===7)renderEgresosMes('');
   render();
+  requestAnimationFrame(function(){window.scrollTo(0,scrollPos[i]||0);});
 }
 
 // ============================================================
@@ -583,7 +652,16 @@ function setSS(cls,txt){
 async function syncManual(){
   setSS('syn','Sincronizando...');
   try{
-    var mes=encodeURIComponent(mesNow());
+    var mesActual=mesNow();
+    // Si el mes cambió desde la última sincronización (ej: julio -> agosto),
+    // archiva localmente los datos del mes anterior antes de reemplazarlos,
+    // así "Ventas del mes" y el comparador siguen viendo julio como historial.
+    var prev=gJulio();
+    if(prev.length&&prev[0].mes&&prev[0].mes!==mesActual){
+      var keyHist='co_hist_'+prev[0].mes;
+      if(!localStorage.getItem(keyHist)){ localStorage.setItem(keyHist, JSON.stringify(prev)); }
+    }
+    var mes=encodeURIComponent(mesActual);
     var rV=await fetch(API_URL+'?action=ventas&mes='+mes);
     var dV=JSON.parse(await rV.text());
     var okV=false, nV=0;
@@ -1132,6 +1210,18 @@ function renderVentasMes(q){
   }).join(''):'<div class="empty">Sin ventas</div>');
 }
 
+function renderEgresosMes(q){
+  var mesE=gE().filter(function(e){return isMes(e.fecha);});
+  var fil=q?mesE.filter(function(e){return(e.descripcion+' '+(e.tipo||'')).toLowerCase().indexOf(q.toLowerCase())!==-1;}):mesE;
+  var totE=sumE(fil);
+  se('em-sub',fil.length+' egresos | '+mesNow());
+  se('em-tot',fmt(totE));
+  var sorted=fil.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
+  se('em-lista',sorted.length?sorted.map(function(e){
+    return'<div class="vm-row"><div class="vm-info" style="flex:1;min-width:0"><div class="vm-prod">'+iconTipo(e.tipo)+' '+e.descripcion+'</div><div class="vm-sub">'+e.fecha.slice(8,10)+'/'+e.fecha.slice(5,7)+' · <span style="color:'+dotTipo(e.tipo)+'">'+e.tipo+'</span></div></div><div class="vm-amt" style="color:var(--da);flex-shrink:0">−'+fmt(e.total)+'</div><button class="delb" style="flex-shrink:0" onclick="delE(\''+e.id+'\');setTimeout(function(){renderEgresosMes(document.getElementById(\'em-q\').value)},50)">×</button></div>';
+  }).join(''):'<div class="empty">Sin egresos</div>');
+}
+
 // ============================================================
 // AUTO / CUOTAS
 // ============================================================
@@ -1183,6 +1273,8 @@ function init(){
   var d=new Date();
   var vf=document.getElementById('v-fecha');if(vf)vf.value=hoy();
   var ef=document.getElementById('e-fecha');if(ef)ef.value=hoy();
+  confirmarFecha('v-fecha','v-fecha-conf');
+  confirmarFecha('e-fecha','e-fecha-conf');
   var vs=document.getElementById('v-sem');if(vs)vs.value=semNow();
   var mdIn=document.getElementById('meta-dia-in'); if(mdIn&&gMetaD())mdIn.value=gMetaD();
   var msIn=document.getElementById('meta-sem-in'); if(msIn&&gMetaS())msIn.value=gMetaS();
