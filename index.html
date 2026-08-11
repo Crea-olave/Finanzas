@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Crea Olave">
-<meta name="theme-color" content="#7c6ff7">
+<meta name="theme-color" content="#D97A4A">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Crea Olave</title>
@@ -14,12 +14,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
-  --bg:#0f0f1a;--s:#1a1a2e;--s2:#232340;--b:#2e2e50;
-  --ac:#7c6ff7;--ac2:#4ecdc4;--da:#ff6b6b;--wa:#ffd93d;--su:#6bcb77;
-  --tx:#f0f0f8;--tx2:#9090b0;--tx3:#5a5a7a;--r:14px;--rs:8px;
-  --p-tr:#4ecdc4;--p-ef:#6bcb77;--p-pe:#ffd93d;
-  --t-mp:#ff9f43;--t-pk:#54a0ff;--t-inv:#a78bfa;--t-trp:#48dbfb;
-  --t-pub:#ff6b9d;--t-op:#9090b0;--t-auto:#ff6b6b
+  --bg:#FDF8F0;--s:#FFFFFF;--s2:#FBF3E4;--b:#E9DFCE;
+  --ac:#D97A4A;--ac2:#7FB89A;--da:#E39B8C;--wa:#D9A030;--su:#7FB89A;
+  --tx:#4A3B2E;--tx2:#9C8B78;--tx3:#B8AA98;--r:16px;--rs:12px;
+  --p-tr:#7FB89A;--p-ef:#8CC7A8;--p-pe:#D9A030;
+  --t-mp:#E39B8C;--t-pk:#C98CB0;--t-inv:#A18CD9;--t-trp:#7FB0D9;
+  --t-pub:#D97A9C;--t-op:#B8AA98;--t-auto:#D9704A
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overscroll-behavior:none}
@@ -46,10 +46,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .kg3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .kc{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:13px;transition:transform .15s}
 .kc:active{transform:scale(.97)}
-.kc.ac{border-color:var(--ac);background:rgba(124,111,247,.1)}
-.kc.su{border-color:var(--su);background:rgba(107,203,119,.1)}
-.kc.da{border-color:var(--da);background:rgba(255,107,107,.1)}
-.kc.wa{border-color:var(--wa);background:rgba(255,217,61,.1)}
+.kc.ac{border-color:var(--ac);background:rgba(217,122,74,.12)}
+.kc.su{border-color:var(--su);background:rgba(127,184,154,.18)}
+.kc.da{border-color:var(--da);background:rgba(227,155,140,.18)}
+.kc.wa{border-color:var(--wa);background:rgba(217,160,48,.15)}
 .kl{font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .kv{font-size:20px;font-weight:700;color:var(--tx);line-height:1.1}
 .kc.ac .kv{color:var(--ac)}.kc.su .kv{color:var(--su)}.kc.da .kv{color:var(--da)}.kc.wa .kv{color:var(--wa)}
@@ -68,7 +68,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .f{margin-bottom:11px}
 .f label{display:block;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
 .f input,.f select{width:100%;padding:12px 13px;background:var(--s);border:1px solid var(--b);border-radius:var(--rs);color:var(--tx);font-size:15px;-webkit-appearance:none;transition:border-color .2s}
-.f input:focus,.f select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(124,111,247,.1)}
+.f input:focus,.f select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(217,122,74,.15)}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* BUTTONS */
@@ -86,7 +86,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
 /* ITEMS */
 .item{background:var(--s);border:1px solid var(--b);border-radius:var(--rs);padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:9px;animation:slideIn .2s ease}
-.delb{width:28px;height:28px;border:none;background:rgba(255,107,107,.12);color:var(--da);border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.delb{width:28px;height:28px;border:none;background:rgba(227,155,140,.25);color:#B5562F;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .ii{flex:1;min-width:0}
@@ -94,12 +94,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .is{font-size:11px;color:var(--tx2);margin-top:2px}
 .ia{font-size:14px;font-weight:700}
 .ia.p{color:var(--su)}.ia.n{color:var(--da)}
-.xb{width:28px;height:28px;border:none;background:rgba(255,107,107,.1);color:var(--da);border-radius:6px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.xb{width:28px;height:28px;border:none;background:rgba(227,155,140,.22);color:#B5562F;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
 /* TAGS */
 .tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
-.t-tr{background:rgba(78,205,196,.15);color:var(--ac2)}
-.t-ef{background:rgba(255,217,61,.15);color:var(--wa)}
+.t-tr{background:rgba(127,184,154,.2);color:#2D6B4A}
+.t-ef{background:rgba(217,160,48,.18);color:#8A6410}
 .t-pe{background:rgba(144,144,176,.15);color:var(--tx2)}
 
 /* CARRITO */
@@ -162,7 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .empty{text-align:center;padding:30px 16px;color:var(--tx3);font-size:13px}
 
 /* RECORD BADGE */
-.rec-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,217,61,.15);border:1px solid rgba(255,217,61,.3);border-radius:10px;padding:3px 8px;font-size:10px;font-weight:700;color:var(--wa);margin-top:4px}
+.rec-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(217,160,48,.18);border:1px solid rgba(217,160,48,.35);border-radius:10px;padding:3px 8px;font-size:10px;font-weight:700;color:#8A6410;margin-top:4px}
 </style>
 </head>
 <body>
@@ -185,8 +185,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div id="p-inicio" class="panel active">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-top:4px">
     <div>
-      <div style="font-size:20px;font-weight:700">Crea Olave 🎨</div>
-      <div style="font-size:11px;color:var(--tx2);margin-top:2px" id="f-hoy"></div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div style="font-size:26px;font-weight:500;color:var(--ac);letter-spacing:-0.5px">Crea Olave</div>
+        <div style="font-size:20px">🎨</div>
+      </div>
+      <svg width="120" height="9" style="display:block;margin:1px 0 3px 1px" viewBox="0 0 130 10"><path d="M2 6 Q 20 2, 40 6 T 80 5 T 128 6" stroke="var(--wa)" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+      <div style="font-size:11px;color:var(--tx2)" id="f-hoy"></div>
     </div>
     <div id="bal-chip" style="background:var(--s);border:1px solid var(--b);border-radius:20px;padding:6px 13px;font-size:14px;font-weight:700">$0</div>
   </div>
@@ -223,7 +227,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
   <div class="sec">Últimas ventas <button onclick="limpiarFiltroDia();sw(6)" style="background:none;border:none;color:var(--ac);font-size:10px;cursor:pointer;font-weight:700;margin-left:4px;letter-spacing:0;text-transform:none">Ver todas →</button></div>
   <div id="i-ult"></div>
-  <div class="cc"><div class="ct">Ventas por día</div><canvas id="ch-dias"></canvas></div>
+  <div class="cc">
+    <div class="ct">Ventas por día</div>
+    <canvas id="ch-dias"></canvas>
+    <div id="dia-pop" style="display:none;background:var(--s);border:1.5px solid var(--su);border-radius:14px;padding:12px;margin-top:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:12px;color:var(--tx2)" id="dia-pop-fecha"></div>
+        <button onclick="cerrarDiaPop()" style="background:none;border:none;color:var(--tx3);font-size:14px;cursor:pointer;padding:0">✕</button>
+      </div>
+      <div style="font-size:22px;font-weight:500;color:var(--su)" id="dia-pop-total"></div>
+      <div style="font-size:11px;color:var(--tx2);margin-bottom:10px" id="dia-pop-sub"></div>
+      <button onclick="verDetalleDia()" style="width:100%;background:var(--s2);border:none;border-radius:10px;padding:9px;font-size:12px;font-weight:500;color:var(--ac);cursor:pointer">Ver el detalle →</button>
+    </div>
+  </div>
   <div class="cc"><div class="ct">Ventas por semana — <span id="ch-sem-lbl"></span></div><canvas id="ch-sem"></canvas></div>
 </div>
 
@@ -268,12 +284,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="f"><label>Cantidad</label><input type="number" id="v-cant" value="1" min="1" inputmode="numeric" oninput="updateDesglose()"></div>
       <div class="f"><label>Precio unit $</label><input type="number" id="v-precio" placeholder="0" inputmode="numeric" oninput="updateDesglose()"></div>
     </div>
-    <div id="v-prev" style="background:rgba(124,111,247,.12);border:1px solid rgba(124,111,247,.25);border-radius:20px;padding:8px 14px;text-align:center;font-size:14px;font-weight:700;color:var(--ac);margin-bottom:11px;display:none"></div>
+    <div id="v-prev" style="background:rgba(217,122,74,.12);border:1px solid rgba(217,122,74,.3);border-radius:20px;padding:8px 14px;text-align:center;font-size:14px;font-weight:700;color:var(--ac);margin-bottom:11px;display:none"></div>
     <div class="mat-box" id="mat-box">
       <div class="mat-t" id="mat-t">Materiales</div>
       <table class="mat-table"><tbody id="mat-body"></tbody><tfoot id="mat-foot"></tfoot></table>
     </div>
-    <button class="btn" onclick="addAlCarrito(this)" style="margin-bottom:0;background:rgba(78,205,196,.12);border:1.5px solid var(--ac2);color:var(--ac2)">+ Agregar producto</button>
+    <button class="btn" onclick="addAlCarrito(this)" style="margin-bottom:0;background:rgba(217,160,48,.14);border:1.5px solid var(--wa);color:#8A6410">+ Agregar producto</button>
   </div>
 
   <div id="carrito-box" style="display:none;background:var(--s);border:1px solid var(--ac);border-radius:var(--r);padding:14px;margin-bottom:12px">
@@ -404,7 +420,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <input type="search" id="vm-q" placeholder="Buscar producto o cliente..." oninput="renderVentasMes(this.value)" autocorrect="off">
   </div>
   <div id="vm-chip-box" style="display:none;margin-bottom:10px">
-    <span id="vm-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(124,111,247,.15);color:var(--ac);border:1px solid var(--ac);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer" onclick="limpiarFiltroDia()"></span>
+    <span id="vm-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(217,122,74,.15);color:var(--ac);border:1px solid var(--ac);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer" onclick="limpiarFiltroDia()"></span>
   </div>
   <div class="cc" style="padding:12px 14px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
@@ -622,6 +638,7 @@ function autoEmoji(pct){
 var scrollPos={};
 function sw(i){
   scrollPos[curTab]=window.scrollY; // recuerda dónde estabas en la pestaña que dejas
+  if(i!==6)cerrarDiaPop();
   curTab=i;
   var ids=['inicio','venta','egreso','historial','clientes','finanzas','ventas-mes','egresos-mes'];
   ids.forEach(function(t,j){
@@ -1116,12 +1133,36 @@ function drawDias(mesV){
   for(var d=1;d<=ultDia;d++){dk.push(y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'));}
   var c=document.getElementById('ch-dias');if(!c||!dk.length)return;
   if(charts.dias)charts.dias.destroy();
-  charts.dias=new Chart(c,{type:'bar',data:{labels:dk.map(function(d){return d.slice(8);}),datasets:[{data:dk.map(function(d){return bd[d]||0;}),backgroundColor:'rgba(124,111,247,.7)',borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,onClick:function(evt,els){if(els&&els.length)verDia(dk[els[0].index]);},plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#9090b0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#9090b0',font:{size:9}},grid:{display:false}}}}});
+  // Color de cada barra según qué tan bien vendió ese día vs el promedio del mes
+  var valores=dk.map(function(d){return bd[d]||0;});
+  var prom=valores.reduce(function(a,v){return a+v;},0)/(valores.filter(function(v){return v>0;}).length||1);
+  var colores=valores.map(function(v){
+    if(v<=0)return 'rgba(184,170,152,.25)';
+    if(v>=prom*1.3)return 'rgba(127,184,154,.8)'; // muy bueno
+    if(v>=prom*0.6)return 'rgba(217,160,48,.75)'; // normal
+    return 'rgba(217,122,74,.4)'; // bajo
+  });
+  charts.dias=new Chart(c,{type:'bar',data:{labels:dk.map(function(d){return d.slice(8);}),datasets:[{data:valores,backgroundColor:colores,borderWidth:0,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,onClick:function(evt,els){if(els&&els.length)verDia(dk[els[0].index]);},plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#B8AA98',font:{size:10}},grid:{color:'rgba(74,59,46,.08)'}},x:{ticks:{color:'#B8AA98',font:{size:9}},grid:{display:false}}}}});
 }
 
-// Abre "Ventas del mes" filtrado en un día específico (click en el gráfico "Ventas por día")
-var filtroDia=null;
-function verDia(fechaStr){filtroDia=fechaStr;sw(6);}
+// Al tocar una barra: muestra un cuadro rápido con el total de ese día (sin salir de Inicio).
+// El detalle completo (Ventas del mes filtrado) solo se abre si tocan "Ver el detalle".
+var filtroDia=null, diaPopFecha=null;
+function verDia(fechaStr){
+  diaPopFecha=fechaStr;
+  var ventasDia=allMesV().filter(function(v){return v.fecha===fechaStr;});
+  var total=sum(ventasDia);
+  var dd=fechaStr.slice(8,10),mm=fechaStr.slice(5,7);
+  var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var fechaObj=new Date(fechaStr+'T12:00:00');
+  se('dia-pop-fecha',dias[fechaObj.getDay()]+' '+dd+'/'+mm);
+  se('dia-pop-total',fmt(total));
+  var mejorDia=Math.max.apply(null,Object.values(allMesV().reduce(function(a,v){a[v.fecha]=(a[v.fecha]||0)+v.total;return a;},{})));
+  se('dia-pop-sub',ventasDia.length+' venta'+(ventasDia.length===1?'':'s')+(total>0&&total===mejorDia?' · el mejor día del mes 🎉':''));
+  var pop=document.getElementById('dia-pop'); if(pop)pop.style.display='block';
+}
+function cerrarDiaPop(){var pop=document.getElementById('dia-pop'); if(pop)pop.style.display='none';}
+function verDetalleDia(){filtroDia=diaPopFecha;cerrarDiaPop();sw(6);}
 function limpiarFiltroDia(){filtroDia=null;renderVentasMes(document.getElementById('vm-q')?document.getElementById('vm-q').value:'');}
 
 function drawSem(mesV){
@@ -1130,7 +1171,7 @@ function drawSem(mesV){
   se('ch-sem-lbl',mesNow());
   var c=document.getElementById('ch-sem');if(!c)return;
   if(charts.sem)charts.sem.destroy();
-  charts.sem=new Chart(c,{type:'bar',data:{labels:['Sem 1','Sem 2','Sem 3','Sem 4'],datasets:[{data:[bs[1],bs[2],bs[3],bs[4]],backgroundColor:['rgba(124,111,247,.8)','rgba(78,205,196,.8)','rgba(107,203,119,.8)','rgba(255,217,61,.8)'],borderWidth:0,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#9090b0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#9090b0',font:{size:10}},grid:{display:false}}}}});
+  charts.sem=new Chart(c,{type:'bar',data:{labels:['Sem 1','Sem 2','Sem 3','Sem 4'],datasets:[{data:[bs[1],bs[2],bs[3],bs[4]],backgroundColor:['rgba(217,122,74,.8)','rgba(127,184,154,.8)','rgba(217,160,48,.8)','rgba(227,155,140,.8)'],borderWidth:0,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#B8AA98',font:{size:10}},grid:{color:'rgba(74,59,46,.08)'}},x:{ticks:{color:'#B8AA98',font:{size:10}},grid:{display:false}}}}});
 }
 
 function drawMix(mesV){
@@ -1138,7 +1179,7 @@ function drawMix(mesV){
   var sp=Object.entries(bp).sort(function(a,b){return b[1]-a[1];});
   var c=document.getElementById('ch-mix');if(!c||!sp.length)return;
   if(charts.mix)charts.mix.destroy();
-  charts.mix=new Chart(c,{type:'doughnut',data:{labels:sp.map(function(x){return x[0];}),datasets:[{data:sp.map(function(x){return x[1];}),backgroundColor:['#7c6ff7','#4ecdc4','#ffd93d','#ff6b6b','#6bcb77','#a29bfe'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{color:'#9090b0',font:{size:10},padding:6,boxWidth:8}}}}});
+  charts.mix=new Chart(c,{type:'doughnut',data:{labels:sp.map(function(x){return x[0];}),datasets:[{data:sp.map(function(x){return x[1];}),backgroundColor:['#D97A4A','#7FB89A','#D9A030','#E39B8C','#8CC7A8','#C98CB0'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{color:'#9C8B78',font:{size:10},padding:6,boxWidth:8}}}}});
 }
 
 // ============================================================
@@ -1151,11 +1192,11 @@ function renderHist(){
   var md=ord.filter(function(m){return pm[m];});
   se('h-kpis',md.slice(0,3).map(function(m,i){var cls=['ac','','su'][i]||'';return'<div class="kc '+cls+'"><div class="kl">'+m+'</div><div class="kv">'+fmtK(pm[m].ing)+'</div><div class="ks">'+pm[m].tx+' ventas</div></div>';}).join(''));
   var cm=document.getElementById('ch-meses');
-  if(cm){if(charts.meses)charts.meses.destroy();charts.meses=new Chart(cm,{type:'bar',data:{labels:md,datasets:[{data:md.map(function(m){return pm[m].ing;}),backgroundColor:['rgba(124,111,247,.8)','rgba(78,205,196,.8)','rgba(107,203,119,.8)'],borderWidth:0,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#9090b0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#9090b0',font:{size:10}},grid:{display:false}}}}});}
+  if(cm){if(charts.meses)charts.meses.destroy();charts.meses=new Chart(cm,{type:'bar',data:{labels:md,datasets:[{data:md.map(function(m){return pm[m].ing;}),backgroundColor:['rgba(217,122,74,.8)','rgba(127,184,154,.8)','rgba(217,160,48,.8)'],borderWidth:0,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return fmtK(v);},color:'#B8AA98',font:{size:10}},grid:{color:'rgba(74,59,46,.08)'}},x:{ticks:{color:'#B8AA98',font:{size:10}},grid:{display:false}}}}});}
   var bp={};todas.forEach(function(v){bp[v.producto]=(bp[v.producto]||0)+v.total;});
   var sp=Object.entries(bp).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
   var cp=document.getElementById('ch-prods');
-  if(cp){if(charts.prods)charts.prods.destroy();charts.prods=new Chart(cp,{type:'bar',data:{labels:sp.map(function(x){return x[0];}),datasets:[{data:sp.map(function(x){return x[1];}),backgroundColor:'rgba(124,111,247,.7)',borderWidth:0,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return fmtK(v);},color:'#9090b0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#9090b0',font:{size:10}},grid:{display:false}}}}});}
+  if(cp){if(charts.prods)charts.prods.destroy();charts.prods=new Chart(cp,{type:'bar',data:{labels:sp.map(function(x){return x[0];}),datasets:[{data:sp.map(function(x){return x[1];}),backgroundColor:'rgba(217,122,74,.65)',borderWidth:0,borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return fmtK(v);},color:'#B8AA98',font:{size:10}},grid:{color:'rgba(74,59,46,.08)'}},y:{ticks:{color:'#B8AA98',font:{size:10}},grid:{display:false}}}}});}
   se('h-det',md.map(function(m){var d=pm[m],tp=Object.entries(d.pr).sort(function(a,b){return b[1]-a[1];})[0];return'<div class="item" style="flex-direction:column;align-items:flex-start;gap:5px"><div style="display:flex;width:100%;justify-content:space-between"><span style="font-size:14px;font-weight:700">'+m+' 2026</span><span style="font-size:15px;font-weight:700;color:var(--ac)">'+fmt(d.ing)+'</span></div><div style="font-size:11px;color:var(--tx2)">'+d.tx+' transacciones · Ticket: '+fmt(d.ing/d.tx)+'</div>'+(tp?'<div style="font-size:11px;color:var(--tx3)">⭐ Top: '+tp[0]+' ('+fmt(tp[1])+')</div>':'')+'</div>';}).join(''));
 }
 
