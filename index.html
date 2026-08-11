@@ -257,7 +257,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <option value="">— Selecciona —</option>
         <option>Figura de Yeso</option><option>Caja Grande</option><option>Caja Mediana</option>
         <option>Figura Personalizada</option><option>Macetero Suculenta</option>
-        <option>Promo 6x4000</option><option>Oferta Cyber 1</option><option>Oferta Cyber 2</option>
+        <option>Promo 6x4000</option><option>Caja Premium</option><option>Oferta Figuras planas</option><option>Oferta Figuras 3D</option><option>Caja Figura Grande</option>
         <option>Pulseras</option><option>Pincel</option><option>Tempera unidad</option>
         <option>Caja Acrílico</option><option>Acrílico unidad</option>
         <option>Figura Grande</option><option>Figura con Palito</option>
@@ -374,10 +374,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="kc wa"><div class="kl">Meta mínima</div><div class="kv">$335.000</div><div class="ks">Fijos + cuota $300.000</div></div>
   </div>
 
-  <div class="sec">Comparativa y ticket promedio</div>
-  <div class="kg">
+  <div class="sec">Comparativa vs mes anterior</div>
+  <div class="kg" style="grid-template-columns:1fr">
     <div class="kc" id="cmp-box"><div class="kl">vs mismo día — <span id="cmp-mes-lbl"></span></div><div class="kv" id="cmp-val">—</div><div class="ks" id="cmp-sub"></div></div>
-    <div class="kc"><div class="kl">Ticket promedio</div><div class="kv" id="tk-val">$0</div><div class="ks" id="tk-sub"></div></div>
+  </div>
+
+  <div class="sec">Promedio de venta</div>
+  <div class="kg" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kc"><div class="kl">Por día</div><div class="kv" id="pv-dia" style="font-size:15px">$0</div></div>
+    <div class="kc"><div class="kl">Por semana</div><div class="kv" id="pv-sem" style="font-size:15px">$0</div></div>
+    <div class="kc"><div class="kl">Por mes</div><div class="kv" id="pv-mes" style="font-size:15px">$0</div><div class="ks" id="pv-mes-s"></div></div>
   </div>
 
   <div class="cc"><div class="ct">Mix productos</div><canvas id="ch-mix"></canvas></div>
@@ -451,18 +457,22 @@ var HIST_E = [{"id": 2000, "fecha": "2026-05-01", "mes": "Mayo", "descripcion": 
 var PRECIOS = {
   'Figura de Yeso':0,'Caja Grande':5500,'Caja Mediana':4500,
   'Figura Personalizada':8500,'Macetero Suculenta':3500,
-  'Promo 6x4000':4000,'Oferta Cyber 1':10000,'Oferta Cyber 2':5000,
+  'Promo 6x4000':4000,
   'Pulseras':3000,'Pincel':500,'Tempera unidad':500,
   'Caja Acrílico':6500,'Acrílico unidad':1000,'Delivery':2000,
-  'Figura Grande':6000,'Figura con Palito':1000,'Otro':0
+  'Figura Grande':6000,'Figura con Palito':1000,
+  'Caja Premium':12000,'Oferta Figuras planas':10000,'Oferta Figuras 3D':10000,
+  'Caja Figura Grande':8500,'Otro':0
 };
 var COSTOS = {
   'Figura de Yeso':150,'Figuras de Yeso':150,'Caja Grande':1055,'Caja Mediana':730,
   'Caja Pequeña':730,'Figura Personalizada':1950,'Macetero Suculenta':150,
-  'Macetero Suculentas':150,'Promo 6x4000':450,'Oferta Cyber 1':1055,
-  'Oferta Cyber 2':970,'Pulseras':150,'Pincel':100,'Tempera unidad':233,
+  'Macetero Suculentas':150,'Promo 6x4000':450,
+  'Pulseras':150,'Pincel':100,'Tempera unidad':233,
   'Caja Acrílico':2800,'Acrílico unidad':233,'Delivery':0,'Pinceles':80,
-  'Figura Grande':0,'Figura con Palito':0,'Otro':0
+  'Figura Grande':70,'Figura con Palito':70,
+  'Caja Premium':3930,'Oferta Figuras planas':1400,'Oferta Figuras 3D':1400,
+  'Caja Figura Grande':470,'Otro':0
 };
 var MATS = {
   'Caja Grande':[{m:'Yeso 3 figuras 3D',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
@@ -471,8 +481,6 @@ var MATS = {
   'Figura Personalizada':[{m:'Yeso figura 3D',u:'unid',cu:1,cp:150},{m:'Pintura tematica',u:'set',cu:1,cp:150},{m:'Suculenta patio',u:'unid',cu:1,cp:0},{m:'Mano de obra',u:'unid',cu:1,cp:1650}],
   'Macetero Suculenta':[{m:'Yeso figura 3D',u:'unid',cu:1,cp:150},{m:'Suculenta patio',u:'unid',cu:1,cp:0}],
   'Promo 6x4000':[{m:'Yeso 6 figuras planas',u:'unid',cu:6,cp:75}],
-  'Oferta Cyber 1':[{m:'Yeso 3 figuras 3D',u:'unid',cu:3,cp:150},{m:'Pintura 5 colores',u:'set',cu:1,cp:150},{m:'Potecitos',u:'unid',cu:5,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
-  'Oferta Cyber 2':[{m:'Yeso 5 figuras planas',u:'unid',cu:5,cp:75},{m:'Pintura 3 colores',u:'set',cu:1,cp:90},{m:'Potecitos',u:'unid',cu:3,cp:20},{m:'Pinceles',u:'unid',cu:2,cp:80},{m:'Cajita carton',u:'unid',cu:1,cp:200},{m:'Papel kraft',u:'unid',cu:1,cp:45}],
   'Pulseras':[{m:'Pelotitas + hilo',u:'set',cu:1,cp:150}]
 };
 
@@ -572,9 +580,10 @@ function tagCls(p){return p==='Transferencia'?'t-tr':p==='Efectivo'?'t-ef':'t-pe
 function dotPago(p){return p==='Transferencia'?'var(--p-tr)':p==='Efectivo'?'var(--p-ef)':'var(--p-pe)';}
 function iconProd(p){
   var m={'Figura de Yeso':'🎨','Caja Grande':'🎁','Caja Mediana':'🎁','Figura Personalizada':'✨',
-    'Macetero Suculenta':'🌵','Promo 6x4000':'🏷️','Oferta Cyber 1':'⚡','Oferta Cyber 2':'⚡',
+    'Macetero Suculenta':'🌵','Promo 6x4000':'🏷️',
     'Pulseras':'📿','Pincel':'🖌️','Tempera unidad':'🎨','Caja Acrílico':'📦','Acrílico unidad':'💎',
-    'Delivery':'🚚','Figura Grande':'🗿','Figura con Palito':'🍭'};
+    'Delivery':'🚚','Figura Grande':'🗿','Figura con Palito':'🍭',
+    'Caja Premium':'👑','Oferta Figuras planas':'🔲','Oferta Figuras 3D':'🧊','Caja Figura Grande':'📦'};
   return m[p]||'🔹';
 }
 function iconTipo(t){
@@ -1050,6 +1059,17 @@ function render(){
 
   var dt=new Date().getDate(), rit=dt>0?ingM/dt:0, proy=Math.round(rit*30);
   se('p-dias',dt); se('p-rit',fmtK(rit)); se('p-proy',fmtK(proy));
+
+  // Promedio de venta por día / semana (ritmo de este mes) y por mes (histórico completo)
+  var semTranscurridas=Math.max(1,Math.ceil(dt/7));
+  se('pv-dia',fmt(Math.round(rit)));
+  se('pv-sem',fmt(Math.round(ingM/semTranscurridas)));
+  var porMes={};
+  allHistV().forEach(function(v){porMes[v.mes]=(porMes[v.mes]||0)+v.total;});
+  var mesesConDatos=Object.keys(porMes);
+  var promMensual=mesesConDatos.length?Math.round(mesesConDatos.reduce(function(a,m){return a+porMes[m];},0)/mesesConDatos.length):0;
+  se('pv-mes',fmt(promMensual));
+  se('pv-mes-s',mesesConDatos.length+' mes'+(mesesConDatos.length===1?'':'es')+' registrado'+(mesesConDatos.length===1?'':'s'));
   var pe=document.getElementById('p-proy');
   if(pe)pe.closest('.kc').className='kc '+(proy>=META?'su':'wa');
 
@@ -1076,19 +1096,6 @@ function render(){
   } else {
     var cv2=document.getElementById('cmp-val'); if(cv2){cv2.textContent='—';cv2.style.color='var(--tx2)';}
     se('cmp-sub',cmp.anterior===0&&cmp.actual>0?'Sin datos de '+cmp.prevMes+' para comparar':'Sin ventas aún');
-  }
-
-  // Ticket promedio del mes (vs mes anterior completo)
-  var tkActual=mesV.length?Math.round(sum(mesV)/mesV.length):0;
-  var prevCompleto=allHistV().filter(function(v){return v.mes===cmp.prevMes;});
-  var tkPrev=prevCompleto.length?Math.round(sum(prevCompleto)/prevCompleto.length):0;
-  se('tk-val',fmt(tkActual));
-  if(tkPrev>0){
-    var mejor=tkActual>=tkPrev;
-    se('tk-sub',(mejor?'▲':'▼')+' vs '+fmt(tkPrev)+' ('+cmp.prevMes+')');
-    var tks=document.getElementById('tk-sub'); if(tks)tks.style.color=mejor?'var(--su)':'var(--da)';
-  } else {
-    se('tk-sub',mesV.length+' venta'+(mesV.length===1?'':'s')+' este mes');
   }
 
   drawMix(mesV);
